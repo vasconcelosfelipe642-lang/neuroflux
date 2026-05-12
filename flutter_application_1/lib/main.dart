@@ -4,6 +4,7 @@ import 'domain/models/task_model.dart';
 import 'presentation/screens/tasks_screen.dart';
 import 'presentation/screens/progress_screen.dart';
 import 'presentation/widgets/bottom_nav_bar.dart';
+import 'presentation/screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Task App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const HomeShell(),
+      home: const LoginScreen(),
     );
   }
 }
