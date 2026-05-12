@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/presentation/screens/register_screen.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/models/task_model.dart';
 import 'presentation/screens/tasks_screen.dart';
 import 'presentation/screens/progress_screen.dart';
 import 'presentation/widgets/bottom_nav_bar.dart';
-import 'presentation/screens/login_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Task App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const LoginScreen(),
+      home: const RegisterScreen(),
     );
   }
 }
