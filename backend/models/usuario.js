@@ -1,19 +1,39 @@
-module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Subtarefas', {
-      id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
-      titulo: { type: Sequelize.STRING, allowNull: false },
-      concluida: { type: Sequelize.BOOLEAN, defaultValue: false },
-      tarefa_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'Tarefas', key: 'id' }, // Chave estrangeira
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      createdAt: { allowNull: false, type: Sequelize.DATE },
-      updatedAt: { allowNull: false, type: Sequelize.DATE }
-    });
-  },
-  async down(queryInterface, Sequelize) { await queryInterface.dropTable('Subtarefas'); }
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class Usuario extends Model {
+    static associate(models) {
+      this.hasMany(models.Tarefa, {
+        foreignKey: 'usuario_id',
+        as: 'tarefas'
+      });
+    }
+  }
+  Usuario.init({
+    nome: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true 
+      }
+    },
+    senha: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Usuario',    
+    tableName: 'Usuarios',  
+    paranoid: true,          
+    timestamps: true        
+  });
+
+  return Usuario;
 };
