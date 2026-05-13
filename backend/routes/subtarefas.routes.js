@@ -1,9 +1,31 @@
-import {router} from 'express';
-import subtarefasController from '../controllers/subtarefasController.js';
+const express = require('express');
 
-const router = Router();
+console.log('Subtarefas routes carregadas');
 
-router.post('/subtarefas', subtarefasController.store);
-router.get('/subtarefas', subtarefasController.index);
-router.put('/subtarefas/:id', subtarefasController.update);
-router.delete('/subtarefas/:id', subtarefasController.delete);
+const router = express.Router();
+
+const subtarefaController = require(
+  '../controllers/subtarefaController'
+);
+
+router.post(
+  '/subtarefas',
+  subtarefaController.store
+);
+
+router.get(
+  '/subtarefas',
+  subtarefaController.index
+);
+
+router.put(
+  '/subtarefas/:id',
+  subtarefaController.update
+);
+
+router.delete(
+  '/subtarefas/:id',
+  subtarefaController.delete
+);
+
+module.exports = router;

@@ -4,11 +4,19 @@ module.exports = {
   
   async store(req, res) {
     try {
+      console.log(req.body);
       const { titulo, descricao, usuarioId } = req.body;
       const tarefa = await Tarefa.create({ titulo, descricao, usuarioId });
       return res.status(201).json(tarefa);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao criar tarefa.' });
+        console.error(error);
+
+        return res.status(400).json({
+          message: 'Erro ao criar tarefa',
+          details: error.errors?.map(
+            err => err.message
+          ) || error.message
+        });
     }
   },
 

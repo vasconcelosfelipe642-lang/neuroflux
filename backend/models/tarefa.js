@@ -20,7 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    descricao: DataTypes.TEXT,
+    descricao: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     concluida: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
