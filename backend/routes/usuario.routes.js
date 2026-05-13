@@ -12,25 +12,10 @@ const usuarioController = require(
   '../controllers/UsuarioController'
 );
 
-router.post(
-  '/usuarios',
-  usuarioController.store
-);
-
-
-router.get(
-  '/usuarios',
-  usuarioController.index
-);
-
-router.put(
-  '/usuarios/:id',
-  usuarioController.update
-);
-
-router.delete(
-  '/usuarios/:id',
-  usuarioController.delete
-);
+router.post('/register', usuarioController.store); 
+router.post('/login', usuarioController.login);  
+router.get('/usuarios', usuarioController.index);
+router.put('/usuarios/:id', usuarioController.update);
+router.delete('/usuarios/:id', usuarioController.delete);
 
 module.exports = router;
