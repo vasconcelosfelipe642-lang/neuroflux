@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Subtarefa',
-    tableName: 'Subtarefas'
+    tableName: 'Subtarefas',
+    paranoid: true,
   });
   return Subtarefa;
 };

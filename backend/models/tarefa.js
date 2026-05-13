@@ -4,12 +4,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Tarefa extends Model {
     static associate(models) {
-      // Uma tarefa pertence a um usuário
+
       this.belongsTo(models.Usuario, {
         foreignKey: 'usuario_id',
         as: 'usuario'
       });
-      // Uma tarefa pode ter muitas subtarefas
       this.hasMany(models.Subtarefa, {
         foreignKey: 'tarefa_id',
         as: 'subtarefas'
@@ -33,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Tarefa',
-    tableName: 'Tarefas'
+    tableName: 'Tarefas',
+    paranoid: true,
   });
   return Tarefa;
 };
