@@ -4,8 +4,8 @@ module.exports = {
   // [POST] 
   async store(req, res) {
     try {
-      const { titulo, tarefa_id } = req.body;
-      const subtarefa = await Subtarefa.create({ titulo, tarefa_id });
+      const { titulo, tarefaId } = req.body;
+      const subtarefa = await Subtarefa.create({ titulo, tarefaId });
       return res.status(201).json(subtarefa);
     } catch (error) {
       return res.status(400).json({ error: 'Erro ao criar subtarefa.' });
@@ -15,8 +15,8 @@ module.exports = {
   // [GET] 
   async index(req, res) {
     try {
-      const { tarefa_id } = req.query; 
-      const subtarefas = await Subtarefa.findAll({ where: { tarefa_id } });
+      const { tarefaId } = req.query; 
+      const subtarefas = await Subtarefa.findAll({ where: { tarefaId } });
       return res.json(subtarefas);
     } catch (error) {
       return res.status(500).json({ error: 'Erro ao buscar subtarefas.' });

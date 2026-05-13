@@ -1,18 +1,18 @@
 const { Tarefa } = require('../models');
 
 module.exports = {
-  // [POST]
+  
   async store(req, res) {
     try {
-      const { titulo, descricao, usuario_id } = req.body;
-      const tarefa = await Tarefa.create({ titulo, descricao, usuario_id });
+      const { titulo, descricao, usuarioId } = req.body;
+      const tarefa = await Tarefa.create({ titulo, descricao, usuarioId });
       return res.status(201).json(tarefa);
     } catch (error) {
       return res.status(400).json({ error: 'Erro ao criar tarefa.' });
     }
   },
 
-  // [GET]
+  
   async index(req, res) {
     try {
       const tarefas = await Tarefa.findAll();
