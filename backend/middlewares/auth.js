@@ -2,31 +2,30 @@ const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1]; 
 
-  if (!token) {
-    return res.status(401).json({ message: 'Não autorizado. Token ausente.' });
+  if (token == null) {
+    return res.status(401).json({ message: 'Não autorizado' }); 
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ message: 'Token inválido ou expirado' });
+      return res.status(403).json({ message: 'Token inválido ou expirado' }); 
     }
 
-    req.user = decoded; 
+    req.user = user; 
     next(); 
   });
 };
 
-
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    return next();
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Acesso negado. Apenas administradores.' });
   }
-
-  return res.status(403).json({ 
-    error: 'Acesso negado. Esta função é exclusiva para administradores.' 
-  });
+  next();
 };
 
-module.exports = { verifyToken, isAdmin };
+module.exports = {
+  verifyToken,
+  isAdmin
+};
