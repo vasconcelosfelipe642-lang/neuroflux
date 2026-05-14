@@ -1,13 +1,13 @@
-const { Tarefa } = require('../models');
+const { Tarefa, Subtarefa } = require('../models');
 
 module.exports = {
   
+  // [POST]
   async store(req, res) {
     try {
       console.log(req.body);
       const { titulo, descricao } = req.body;
-      
-      // Usa o ID do usuário autenticado, não do req.body
+
       const usuarioId = req.user.id;
       
       const tarefa = await Tarefa.create({ titulo, descricao, usuarioId });
@@ -25,31 +25,47 @@ module.exports = {
   },
 
   
+  // [GET] Listar todas as tarefas com suas subtarefas
   async index(req, res) {
     try {
       let where = {};
-      
-      // Se não for admin, mostra apenas suas tarefas
+
       if (req.user.role !== 'admin') {
         where.usuarioId = req.user.id;
       }
       
-      const tarefas = await Tarefa.findAll({ where });
+      const tarefas = await Tarefa.findAll({ 
+        where,
+        include: [{
+          model: Subtarefa,
+          as: 'subtarefas', 
+          attributes: ['id', 'titulo', 'concluida'] 
+        }]
+      });
+      
       return res.json(tarefas);
     } catch (error) {
+      console.error("ERRO NO INDEX TAREFAS:", error);
       return res.status(500).json({ error: 'Erro ao buscar tarefas.' });
     }
   },
 
-  // [GET - ID]
+  // [GET - ID] Buscar uma tarefa específica com suas subtarefas
   async show(req, res) {
     try {
       const { id } = req.params;
-      const tarefa = await Tarefa.findByPk(id);
+      const tarefa = await Tarefa.findByPk(id, {
+        include: [{
+          model: Subtarefa,
+          as: 'subtarefas',
+          attributes: ['id', 'titulo', 'concluida']
+        }]
+      });
       
-      if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+      if (!tarefa) {
+        return res.status(404).json({ error: 'Tarefa não encontrada.' });
+      }
       
-      // Verifica se o usuário tem permissão para ver (é o criador ou é admin)
       if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Você não tem permissão para ver esta tarefa.' });
       }
@@ -69,7 +85,6 @@ module.exports = {
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
 
-      // Verifica permissão - apenas o criador ou admin pode editar
       if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Você não tem permissão para editar esta tarefa.' });
       }
@@ -89,7 +104,6 @@ module.exports = {
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
 
-      // Verifica permissão - apenas o criador ou admin pode deletar
       if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Você não tem permissão para deletar esta tarefa.' });
       }
