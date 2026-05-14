@@ -15,6 +15,7 @@ router.post('/login', usuarioController.login);
 
 // Rotas protegidas - apenas admin pode listar e deletar
 router.get('/usuarios', verifyToken, usuarioController.index);
+router.get('/usuarios/:id', verifyToken, usuarioController.show);
 router.put('/usuarios/:id', verifyToken, usuarioController.update);
 router.delete('/usuarios/:id', verifyToken,isAdmin, usuarioController.delete);
 
