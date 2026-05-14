@@ -17,28 +17,40 @@ function generateAccessToken(usuario) {
 
 module.exports = {
   async store(req, res) {
-    try {
-      const { nome, email, senha } = req.body;
+  try {
+    const { nome, email, senha } = req.body;
 
-      if (!nome || !email || !senha) {
-        return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
-      }
-      const usuario = await Usuario.create({ nome, email, senha });
-
-      const token = generateAccessToken(usuario);
-
-      return res.status(201).json({
-        message: 'Usuário criado com sucesso!',
-        token
-      });
-    } catch (error) {
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        return res.status(409).json({ error: 'Este e-mail já está em uso' }); 
-      }
-      return res.status(400).json({ error: 'Erro ao criar usuário' });
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
     }
-  },
 
+    // Cria o usuário no banco
+    const usuario = await Usuario.create({ nome, email, senha });
+
+    // Pega apenas os dados puros (sem os metadados do Sequelize)
+    const usuarioDados = usuario.get({ plain: true });
+
+    // Gera o token usando os dados limpos
+    const token = generateAccessToken(usuarioDados);
+
+    return res.status(201).json({
+      message: 'Usuário criado com sucesso!',
+      token
+    });
+
+  } catch (error) {
+    // ESSA LINHA É A MAIS IMPORTANTE AGORA:
+    console.error("❌ ERRO NO STORE:", error); 
+
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ error: 'Este e-mail já está em uso' }); 
+    }
+    return res.status(400).json({ 
+      error: 'Erro ao criar usuário', 
+      details: error.message 
+    });
+  }
+},
   async login(req, res) {
     try {
       const { email, senha } = req.body;

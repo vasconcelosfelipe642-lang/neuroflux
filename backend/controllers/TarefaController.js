@@ -5,7 +5,11 @@ module.exports = {
   async store(req, res) {
     try {
       console.log(req.body);
-      const { titulo, descricao, usuarioId } = req.body;
+      const { titulo, descricao } = req.body;
+      
+      // Usa o ID do usuário autenticado, não do req.body
+      const usuarioId = req.user.id;
+      
       const tarefa = await Tarefa.create({ titulo, descricao, usuarioId });
       return res.status(201).json(tarefa);
     } catch (error) {
@@ -23,7 +27,14 @@ module.exports = {
   
   async index(req, res) {
     try {
-      const tarefas = await Tarefa.findAll();
+      let where = {};
+      
+      // Se não for admin, mostra apenas suas tarefas
+      if (req.user.role !== 'admin') {
+        where.usuarioId = req.user.id;
+      }
+      
+      const tarefas = await Tarefa.findAll({ where });
       return res.json(tarefas);
     } catch (error) {
       return res.status(500).json({ error: 'Erro ao buscar tarefas.' });
@@ -37,6 +48,11 @@ module.exports = {
       const tarefa = await Tarefa.findByPk(id);
       
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+      
+      // Verifica se o usuário tem permissão para ver (é o criador ou é admin)
+      if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Você não tem permissão para ver esta tarefa.' });
+      }
       
       return res.json(tarefa);
     } catch (error) {
@@ -53,6 +69,11 @@ module.exports = {
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
 
+      // Verifica permissão - apenas o criador ou admin pode editar
+      if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Você não tem permissão para editar esta tarefa.' });
+      }
+
       await tarefa.update({ titulo, descricao, concluida });
       return res.json(tarefa);
     } catch (error) {
@@ -67,6 +88,11 @@ module.exports = {
       const tarefa = await Tarefa.findByPk(id);
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+
+      // Verifica permissão - apenas o criador ou admin pode deletar
+      if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Você não tem permissão para deletar esta tarefa.' });
+      }
 
       await tarefa.destroy(); 
       return res.json({ message: 'Tarefa deletada com sucesso.' });
