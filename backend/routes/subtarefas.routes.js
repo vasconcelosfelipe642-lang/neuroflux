@@ -6,6 +6,7 @@ const { verifyToken } = require('../middlewares/auth');
 
 router.post('/subtarefas',verifyToken,subtarefaController.store);
 router.get('/subtarefas',verifyToken,subtarefaController.index);
+router.get('/subtarefas/:id', verifyToken, subtarefaController.show);
 router.put('/subtarefas/:id',verifyToken,subtarefaController.update);
 router.delete('/subtarefas/:id',verifyToken,subtarefaController.delete);
 
