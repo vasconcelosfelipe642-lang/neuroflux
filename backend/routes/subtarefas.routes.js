@@ -1,31 +1,12 @@
 const express = require('express');
-
 console.log('Subtarefas routes carregadas');
-
 const router = express.Router();
+const subtarefaController = require('../controllers/subtarefaController');
+const { verifyToken } = require('../middlewares/auth');
 
-const subtarefaController = require(
-  '../controllers/subtarefaController'
-);
-
-router.post(
-  '/subtarefas',
-  subtarefaController.store
-);
-
-router.get(
-  '/subtarefas',
-  subtarefaController.index
-);
-
-router.put(
-  '/subtarefas/:id',
-  subtarefaController.update
-);
-
-router.delete(
-  '/subtarefas/:id',
-  subtarefaController.delete
-);
+router.post('/subtarefas',verifyToken,subtarefaController.store);
+router.get('/subtarefas',verifyToken,subtarefaController.index);
+router.put('/subtarefas/:id',verifyToken,subtarefaController.update);
+router.delete('/subtarefas/:id',verifyToken,subtarefaController.delete);
 
 module.exports = router;

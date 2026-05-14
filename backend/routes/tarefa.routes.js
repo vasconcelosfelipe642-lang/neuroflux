@@ -1,31 +1,12 @@
 const express = require('express');
-
 console.log('Tarefas routes carregadas');
-
 const router = express.Router();
+const tarefaController = require('../controllers/tarefaController');
+const { verifyToken } = require('../middlewares/auth');
 
-const tarefaController = require(
-  '../controllers/tarefaController'
-);
-
-router.post(
-  '/tarefas',
-  tarefaController.store
-);
-
-router.get(
-  '/tarefas',
-  tarefaController.index
-);
-
-router.put(
-  '/tarefas/:id',
-  tarefaController.update
-);
-
-router.delete(
-  '/tarefas/:id',
-  tarefaController.delete
-);
+router.post('/tarefas',verifyToken,tarefaController.store);
+router.get('/tarefas',verifyToken,tarefaController.index);
+router.put('/tarefas/:id',verifyToken,tarefaController.update);
+router.delete('/tarefas/:id',verifyToken,tarefaController.delete);
 
 module.exports = router;
