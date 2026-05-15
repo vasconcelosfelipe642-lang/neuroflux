@@ -7,7 +7,7 @@ module.exports = {
       titulo: { type: Sequelize.STRING, allowNull: false },
       descricao: { type: Sequelize.TEXT },
       concluida: { type: Sequelize.BOOLEAN, defaultValue: false },
-      usuario_id: {
+      usuarioId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: 'Usuarios', key: 'id' },

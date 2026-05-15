@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class Subtarefa extends Model {
     static associate(models) {
       this.belongsTo(models.Tarefa, {
-        foreignKey: 'tarefa_id',
+        foreignKey: 'tarefaId',
         as: 'tarefa'
       });
     }
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    tarefa_id: {
+    tarefaId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
