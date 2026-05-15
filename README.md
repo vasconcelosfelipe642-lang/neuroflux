@@ -1,5 +1,15 @@
 # NeuroFlux
 
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![Sequelize](https://img.shields.io/badge/Sequelize-6.x-52B0E7?logo=sequelize&logoColor=white)](https://sequelize.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev/)
+[![License](https://img.shields.io/badge/License-Academic-blue)](#licença)
+
+**Português** · [English](README.en.md)
+
 **Pequenas etapas, grandes conquistas.**
 
 Aplicativo de produtividade voltado a pessoas neurodivergentes — com foco em **TDAH** — para organização de tarefas e redução da **sobrecarga executiva**. O projeto divide objetivos em etapas menores (tarefas e subtarefas), exibe progresso visual do dia e oferece uma interface pensada para diminuir fricção cognitiva.
@@ -119,6 +129,7 @@ flowchart LR
 ```
 neuroflux/
 ├── README.md
+├── README.en.md
 ├── backend/                    # API REST
 │   ├── server.js               # Entrada do servidor
 │   ├── config/                 # Configuração Sequelize
