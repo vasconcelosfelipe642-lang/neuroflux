@@ -1,81 +1,121 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
+import '../../core/errors/app_exception.dart';
+import '../../data/services/tarefa_service.dart';
 import '../../domain/models/task_model.dart';
+import '../../domain/models/user_model.dart';
 import '../widgets/app_header.dart';
 import '../widgets/progress_big_card.dart';
-// StatCard está definido em progress_big_card.dart
 
-class ProgressScreen extends StatelessWidget {
-  /// Recebe as tarefas do dia — virá do provider/bloc futuramente
-  final List<TaskModel> tasks;
+class ProgressScreen extends StatefulWidget {
+  final UserModel user;
+  const ProgressScreen({super.key, required this.user});
 
-  const ProgressScreen({super.key, required this.tasks});
+  @override
+  State<ProgressScreen> createState() => _ProgressScreenState();
+}
 
-  int get _completedCount => tasks.where((t) => t.isCompleted).length;
-  int get _pendingCount => tasks.where((t) => !t.isCompleted).length;
+class _ProgressScreenState extends State<ProgressScreen> {
+  final _tarefaService = TarefaService.instance;
+  List<TaskModel> _tasks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+    _tarefaService.addListener(_loadTasks);
+  }
+
+  @override
+  void dispose() {
+    _tarefaService.removeListener(_loadTasks);
+    super.dispose();
+  }
+
+  Future<void> _loadTasks() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+    try {
+      final tasks = await _tarefaService.listar();
+      if (mounted) {
+        setState(() {
+          _tasks = tasks;
+          _isLoading = false;
+        });
+      }
+    } on AppException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
+      }
+    }
+  }
+
+  void _handleLogout() {
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final int completedCount = _tasks.where((t) => t.isCompleted).length;
+    final int pendingCount = _tasks.where((t) => !t.isCompleted).length;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            const AppHeader(),
+            AppHeader(
+              user: widget.user,
+              onLogout: _handleLogout,
+            ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSizes.pagePadding),
-                child: Column(
-                  children: [
-                    ProgressBigCard(
-                      completedTasks: _completedCount,
-                      totalTasks: tasks.length,
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    )
+                  : RefreshIndicator(
+                      color: AppColors.primary,
+                      onRefresh: _loadTasks,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(AppSizes.pagePadding),
+                        child: Column(
+                          children: [
+                            ProgressBigCard(
+                              completedTasks: completedCount,
+                              totalTasks: _tasks.length,
+                            ),
+                            const SizedBox(height: AppSizes.md),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: StatCard(
+                                    icon: Icons.trending_up_rounded,
+                                    count: completedCount,
+                                    label: AppStrings.tasksComplete,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSizes.md),
+                                Expanded(
+                                  child: StatCard(
+                                    icon: Icons.calendar_today_outlined,
+                                    count: pendingCount,
+                                    label: AppStrings.tasksPending,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: AppSizes.md),
-                    _StatsRow(
-                      completedCount: _completedCount,
-                      pendingCount: _pendingCount,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _StatsRow extends StatelessWidget {
-  final int completedCount;
-  final int pendingCount;
-
-  const _StatsRow({
-    required this.completedCount,
-    required this.pendingCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: StatCard(
-            icon: Icons.trending_up_rounded,
-            count: completedCount,
-            label: AppStrings.tasksComplete,
-          ),
-        ),
-        const SizedBox(width: AppSizes.md),
-        Expanded(
-          child: StatCard(
-            icon: Icons.calendar_today_outlined,
-            count: pendingCount,
-            label: AppStrings.tasksPending,
-          ),
-        ),
-      ],
     );
   }
 }
