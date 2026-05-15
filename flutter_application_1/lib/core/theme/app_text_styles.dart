@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 abstract final class AppTextStyles {
+  // ── Header ────────────────────────────────────────────────
   static const greetingSmall = TextStyle(
     fontSize: 12,
     color: AppColors.textSecondary,
@@ -20,6 +21,7 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
 
+  // ── Cards / Sections ──────────────────────────────────────
   static const sectionTitle = TextStyle(
     fontSize: 15,
     color: AppColors.textPrimary,
@@ -87,6 +89,7 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
 
+  // ── Modal ─────────────────────────────────────────────────
   static const modalTitle = TextStyle(
     fontSize: 18,
     color: AppColors.textPrimary,
@@ -99,6 +102,7 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
+  // ── Nav / Buttons ─────────────────────────────────────────
   static const navLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -109,5 +113,46 @@ abstract final class AppTextStyles {
     color: Colors.white,
     fontWeight: FontWeight.w700,
     letterSpacing: 0.2,
+  );
+
+  // ── Auth ──────────────────────────────────────────────────
+  static const authTitle = TextStyle(
+    fontSize: 24,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w800,
+    height: 1.2,
+  );
+
+  static const authSubtitle = TextStyle(
+    fontSize: 14,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w400,
+    height: 1.4,
+  );
+
+  static const authTagline = TextStyle(
+    fontSize: 11,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 1.5,
+  );
+
+  static const authLink = TextStyle(
+    fontSize: 14,
+    color: AppColors.primary,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const authBodySmall = TextStyle(
+    fontSize: 14,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w400,
+  );
+
+  static const authTerms = TextStyle(
+    fontSize: 11,
+    color: AppColors.textHint,
+    fontWeight: FontWeight.w400,
+    height: 1.5,
   );
 }
