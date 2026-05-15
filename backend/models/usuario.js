@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Usuario',    
     tableName: 'Usuarios',  
-    paranoid: true,          
+    paranoid: false,          
     timestamps: true,
     hooks: {
       beforeCreate: async (usuario) => {
