@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../domain/models/user_model.dart';
 import '../../core/errors/app_exception.dart';
 import 'api_client.dart';
+import 'token_storage_service.dart';
 
 /// Responsável por login e cadastro.
 /// Após autenticação, injeta o token no ApiClient automaticamente.
@@ -24,7 +25,7 @@ class AuthService {
       });
       // Backend retorna { message, accessToken, expiresIn }
       final token = json['accessToken'] as String;
-      _client.setToken(token);
+      await _persistToken(token);
       return _decodeUserFromToken(token);
     } on SocketException {
       throw AppException.network();
@@ -45,14 +46,35 @@ class AuthService {
       });
       // Backend retorna { message, token }
       final token = json['token'] as String;
-      _client.setToken(token);
+      await _persistToken(token);
       return _decodeUserFromToken(token);
     } on SocketException {
       throw AppException.network();
     }
   }
 
-  void logout() => _client.clearToken();
+  Future<void> logout() async {
+    _client.clearToken();
+    await TokenStorageService.clearToken();
+  }
+
+  /// Restaura sessão salva (token em disco). Retorna null se não houver sessão.
+  Future<UserModel?> restoreSession() async {
+    final token = await TokenStorageService.getToken();
+    if (token == null) return null;
+    _client.setToken(token);
+    try {
+      return _decodeUserFromToken(token);
+    } catch (_) {
+      await logout();
+      return null;
+    }
+  }
+
+  Future<void> _persistToken(String token) async {
+    _client.setToken(token);
+    await TokenStorageService.saveToken(token);
+  }
 
   /// Decodifica o payload do JWT localmente para obter id, nome e role.
   /// Payload: { id, nome, role, iat, exp }
