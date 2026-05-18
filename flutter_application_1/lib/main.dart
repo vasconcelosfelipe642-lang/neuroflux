@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'core/errors/app_exception.dart';
 import 'data/services/auth_service.dart';
 import 'domain/models/user_model.dart';
 import 'domain/models/auth_form_model.dart';
@@ -8,9 +7,11 @@ import 'presentation/screens/login_screen.dart';
 import 'presentation/screens/register_screen.dart';
 import 'presentation/screens/tasks_screen.dart';
 import 'presentation/screens/progress_screen.dart';
+import 'presentation/screens/admin/admin_dashboard_screen.dart';
 import 'presentation/widgets/bottom_nav_bar.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const NeuroFluxApp());
 }
 
@@ -41,8 +42,22 @@ class _AuthGateState extends State<AuthGate> {
 
   UserModel? _user;
   bool _showRegister = false;
+  bool _isRestoring = true;
 
-  // ── Handlers de auth ──────────────────────────────────────
+  @override
+  void initState() {
+    super.initState();
+    _restoreSession();
+  }
+
+  Future<void> _restoreSession() async {
+    final user = await _authService.restoreSession();
+    if (!mounted) return;
+    setState(() {
+      _user = user;
+      _isRestoring = false;
+    });
+  }
 
   Future<void> _onLogin(LoginFormModel form) async {
     final user = await _authService.login(
@@ -61,19 +76,30 @@ class _AuthGateState extends State<AuthGate> {
     setState(() => _user = user);
   }
 
-  void _onLogout() {
-    _authService.logout();
+  Future<void> _onLogout() async {
+    await _authService.logout();
+    if (!mounted) return;
     setState(() {
       _user = null;
       _showRegister = false;
     });
   }
 
-  // ── Build ─────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
+    if (_isRestoring) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     if (_user != null) {
+      if (_user!.isAdmin) {
+        return AdminDashboardScreen(
+          admin: _user!,
+          onLogout: _onLogout,
+        );
+      }
       return HomeShell(user: _user!, onLogout: _onLogout);
     }
 
@@ -111,8 +137,8 @@ class _HomeShellState extends State<HomeShell> {
       body: IndexedStack(
         index: _currentTab.index,
         children: [
-          TasksScreen(user: widget.user),
-          ProgressScreen(user: widget.user),
+          TasksScreen(user: widget.user, onLogout: widget.onLogout),
+          ProgressScreen(user: widget.user, onLogout: widget.onLogout),
         ],
       ),
       bottomNavigationBar: AppBottomNavBar(
