@@ -7,6 +7,7 @@ class TaskModel {
   final bool isCompleted;
   final List<SubtaskModel> subtasks;
   final DateTime createdAt;
+  final String? usuarioId;
 
   const TaskModel({
     required this.id,
@@ -15,6 +16,7 @@ class TaskModel {
     this.isCompleted = false,
     this.subtasks = const [],
     required this.createdAt,
+    this.usuarioId,
   });
 
   bool get hasSubtasks => subtasks.isNotEmpty;
@@ -34,6 +36,7 @@ class TaskModel {
           .toList(),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
+      usuarioId: json['usuarioId']?.toString(),
     );
   }
 
