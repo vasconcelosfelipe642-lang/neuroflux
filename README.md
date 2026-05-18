@@ -32,6 +32,7 @@ Aplicativo de produtividade voltado a pessoas neurodivergentes — com foco em *
 - [Executando o app Flutter](#executando-o-app-flutter)
 - [Endpoints da API](#endpoints-da-api)
 - [Fluxo de uso do aplicativo](#fluxo-de-uso-do-aplicativo)
+- [Painel administrativo](#painel-administrativo)
 - [Solução de problemas](#solução-de-problemas)
 - [Licença](#licença)
 
@@ -58,6 +59,8 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 | **Subtarefas** | Dividir uma tarefa em passos menores |
 | **Progresso** | Tela dedicada com visão de tarefas completas e pendentes |
 | **Progresso do dia** | Indicador na aba principal (ex.: “X de Y tarefas concluídas”) |
+| **Painel administrativo** | Visão geral, gestão de usuários, estatísticas de tarefas e banimento (role `admin`) |
+| **Sessão persistente** | Token JWT salvo localmente — o app mantém o login após fechar ou recarregar |
 
 ---
 
@@ -70,13 +73,14 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 | [Flutter](https://flutter.dev/) (Dart 3+) | Interface multiplataforma |
 | [Material Design](https://m3.material.io/) | Componentes e tema visual |
 | [http](https://pub.dev/packages/http) | Cliente HTTP para a API REST |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | Persistência do token JWT e cache local de usuários banidos |
 
 **Organização do código (camadas):**
 
-- `lib/core/` — tema, constantes, exceções
-- `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`
+- `lib/core/` — tema, constantes, exceções e utilitários
+- `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — modelos de domínio
-- `lib/presentation/` — telas e widgets
+- `lib/presentation/` — telas e widgets (inclui `screens/admin/` e `widgets/admin/`)
 
 ### Backend — `backend/`
 
@@ -145,6 +149,8 @@ neuroflux/
         ├── data/services/
         ├── domain/models/
         └── presentation/
+            ├── screens/admin/      # Painel, gestão e detalhe de usuários
+            └── widgets/admin/      # Componentes do painel administrativo
 ```
 
 ---
@@ -339,9 +345,9 @@ Base URL: `http://localhost:3000`
 | `GET` | `/usuarios` | Listar usuários |
 | `GET` | `/usuarios/:id` | Buscar usuário |
 | `PUT` | `/usuarios/:id` | Atualizar usuário |
-| `DELETE` | `/usuarios/:id` | Excluir usuário (admin) |
+| `DELETE` | `/usuarios/:id` | Excluir usuário — **somente role `admin`** |
 | `POST` | `/tarefas` | Criar tarefa |
-| `GET` | `/tarefas` | Listar tarefas do usuário |
+| `GET` | `/tarefas` | Listar tarefas (usuário: só as suas; **admin: todas**) |
 | `GET` | `/tarefas/:id` | Detalhar tarefa |
 | `PUT` | `/tarefas/:id` | Atualizar tarefa |
 | `DELETE` | `/tarefas/:id` | Excluir tarefa |
@@ -363,10 +369,73 @@ curl -X POST http://localhost:3000/login \
 
 ## Fluxo de uso do aplicativo
 
+### Usuário comum (`role: user`)
+
 1. **Cadastre-se** ou **entre** com e-mail e senha.
 2. Na aba **Tarefas**, crie uma nova tarefa (com subtarefas opcionais).
 3. Marque tarefas e subtarefas como concluídas conforme avançar.
 4. Acompanhe o **progresso do dia** no card superior e na aba **Progresso**.
+5. Toque no **avatar** no topo para abrir o perfil e **sair do aplicativo**.
+
+> A sessão permanece ativa após fechar o app: o token é restaurado automaticamente na próxima abertura.
+
+### Administrador (`role: admin`)
+
+Após o login, o app abre o **painel administrativo** em vez das abas de tarefas. Consulte a seção [Painel administrativo](#painel-administrativo).
+
+---
+
+## Painel administrativo
+
+O painel é exibido automaticamente quando o JWT do usuário contém `role: admin`. Usuários com `role: user` seguem o fluxo normal de tarefas e progresso.
+
+### O que o administrador pode fazer
+
+| Tela | Recursos |
+|------|----------|
+| **Painel de controle** | Visão geral (usuários cadastrados, tarefas criadas/concluídas, banidos), lista de usuários recentes |
+| **Gerenciar usuários** | Busca, lista de ativos e banidos, acesso ao detalhe de cada usuário |
+| **Detalhe do usuário** | E-mail, tarefas criadas/concluídas, taxa de conclusão, atividade recente (tarefas) |
+| **Banir usuário** | Confirmação em modal → exclusão via `DELETE /usuarios/:id` |
+
+O logout do admin funciona como no usuário comum: toque no **avatar** → **Sair do Aplicativo**.
+
+### Como promover um usuário a administrador
+
+Em ambiente acadêmico/local, a forma mais simples é alterar o banco diretamente:
+
+```sql
+-- Substitua pelo e-mail do usuário desejado
+UPDATE usuarios SET role = 'admin' WHERE email = 'seu@email.com';
+```
+
+Confirme a alteração:
+
+```sql
+SELECT id, nome, email, role FROM usuarios WHERE email = 'seu@email.com';
+```
+
+> **Importante:** o token JWT é gerado no login e inclui o `role`. Depois de mudar o papel no banco, **faça logout e login novamente** (ou limpe os dados do app) para o app reconhecer o perfil admin.
+
+### Passo a passo para testar o painel
+
+1. Suba a API (`npm start` em `backend/`) e o MySQL.
+2. Cadastre um usuário pelo app ou via `POST /register`.
+3. No MySQL, execute o `UPDATE` acima para definir `role = 'admin'`.
+4. No app, saia da conta (avatar → Sair) e entre de novo com esse usuário.
+5. O **painel administrativo** deve abrir automaticamente.
+6. Use **Ver todos →** para gerenciar usuários, ou toque em um usuário para ver detalhes e estatísticas.
+7. Use **Banir** para remover um usuário (requer token de admin).
+
+### Sobre o banimento
+
+- No backend, banir equivale a **`DELETE /usuarios/:id`** (exclusão permanente).
+- Usuários excluídos somem da listagem da API; o app mantém um **cache local** para exibir a seção “Usuários banidos” e o contador na visão geral.
+- Não há endpoint de “desbanir” — é um projeto acadêmico com fluxo simplificado.
+
+### Permissões de admin nas tarefas
+
+Com `role: admin`, a API retorna **todas as tarefas** em `GET /tarefas`, permitindo calcular estatísticas por usuário no painel. Usuários comuns continuam vendo apenas as próprias tarefas.
 
 ---
 
@@ -380,6 +449,9 @@ curl -X POST http://localhost:3000/login \
 | `flutter run -d windows` falha | Falta toolchain C++ | Instale VS 2022 com *Desktop development with C++*; rode `flutter doctor` |
 | Erro de rede no emulador Android | `localhost` no emulador | Use `10.0.2.2:3000` no lugar de `localhost` (se testar em Android) |
 | Token inválido após 1 h | Expiração JWT | Faça login novamente (`expiresIn: '1h'`) |
+| Painel admin não aparece | Token antigo sem `role` atualizado | Logout + login após `UPDATE` no MySQL |
+| `403` ao banir usuário | Usuário logado não é admin | Confirme `role = 'admin'` no banco e refaça o login |
+| App pede login a cada abertura | Token não persistido | Rode `flutter pub get`; confirme dependência `shared_preferences` |
 
 ---
 

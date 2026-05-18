@@ -32,6 +32,7 @@ A productivity app for neurodivergent people — with a focus on **ADHD** — fo
 - [Running the Flutter app](#running-the-flutter-app)
 - [API endpoints](#api-endpoints)
 - [App usage flow](#app-usage-flow)
+- [Admin panel](#admin-panel)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -58,6 +59,8 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 | **Subtasks** | Split a task into smaller steps |
 | **Progress** | Dedicated screen for completed and pending tasks |
 | **Daily progress** | Indicator on the main tab (e.g. “X of Y tasks completed”) |
+| **Admin panel** | Overview, user management, task statistics, and ban (role `admin`) |
+| **Persistent session** | JWT stored locally — login survives app restarts |
 
 ---
 
@@ -70,13 +73,14 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 | [Flutter](https://flutter.dev/) (Dart 3+) | Cross-platform UI |
 | [Material Design](https://m3.material.io/) | Components and visual theme |
 | [http](https://pub.dev/packages/http) | HTTP client for the REST API |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | JWT persistence and local banned-users cache |
 
 **Code organization (layers):**
 
-- `lib/core/` — theme, constants, exceptions
-- `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`
+- `lib/core/` — theme, constants, exceptions, utilities
+- `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — domain models
-- `lib/presentation/` — screens and widgets
+- `lib/presentation/` — screens and widgets (includes `screens/admin/` and `widgets/admin/`)
 
 ### Backend — `backend/`
 
@@ -145,6 +149,8 @@ neuroflux/
         ├── data/services/
         ├── domain/models/
         └── presentation/
+            ├── screens/admin/      # Dashboard, user list, user detail
+            └── widgets/admin/      # Admin panel UI components
 ```
 
 ---
@@ -339,9 +345,9 @@ Base URL: `http://localhost:3000`
 | `GET` | `/usuarios` | List users |
 | `GET` | `/usuarios/:id` | Get user |
 | `PUT` | `/usuarios/:id` | Update user |
-| `DELETE` | `/usuarios/:id` | Delete user (admin) |
+| `DELETE` | `/usuarios/:id` | Delete user — **admin role only** |
 | `POST` | `/tarefas` | Create task |
-| `GET` | `/tarefas` | List user tasks |
+| `GET` | `/tarefas` | List tasks (user: own only; **admin: all**) |
 | `GET` | `/tarefas/:id` | Get task |
 | `PUT` | `/tarefas/:id` | Update task |
 | `DELETE` | `/tarefas/:id` | Delete task |
@@ -363,10 +369,73 @@ curl -X POST http://localhost:3000/login \
 
 ## App usage flow
 
+### Regular user (`role: user`)
+
 1. **Sign up** or **log in** with email and password.
 2. On the **Tasks** tab, create a new task (with optional subtasks).
 3. Mark tasks and subtasks as completed as you progress.
 4. Track **daily progress** on the top card and on the **Progress** tab.
+5. Tap your **avatar** at the top to open the profile sheet and **log out**.
+
+> The session stays active after closing the app: the token is restored on the next launch.
+
+### Administrator (`role: admin`)
+
+After login, the app opens the **admin panel** instead of the task tabs. See [Admin panel](#admin-panel).
+
+---
+
+## Admin panel
+
+The panel opens automatically when the user's JWT contains `role: admin`. Users with `role: user` follow the normal tasks and progress flow.
+
+### What admins can do
+
+| Screen | Features |
+|--------|----------|
+| **Dashboard** | Overview (registered users, tasks created/completed, banned), recent users list |
+| **Manage users** | Search, active and banned lists, user detail |
+| **User detail** | Email, tasks created/completed, completion rate, recent activity |
+| **Ban user** | Confirmation modal → `DELETE /usuarios/:id` |
+
+Logout works like regular users: tap **avatar** → **Log out**.
+
+### Promoting a user to admin
+
+For local/academic use, update the database directly:
+
+```sql
+-- Replace with the target user's email
+UPDATE usuarios SET role = 'admin' WHERE email = 'you@email.com';
+```
+
+Verify:
+
+```sql
+SELECT id, nome, email, role FROM usuarios WHERE email = 'you@email.com';
+```
+
+> **Important:** the JWT is issued at login and embeds `role`. After changing the role in MySQL, **log out and log in again** (or clear app data) so the app picks up the admin profile.
+
+### Step-by-step to test the panel
+
+1. Start the API (`npm start` in `backend/`) and MySQL.
+2. Register a user in the app or via `POST /register`.
+3. Run the `UPDATE` above to set `role = 'admin'`.
+4. Log out (avatar → Log out) and log in again with that user.
+5. The **admin panel** should open automatically.
+6. Use **See all →** to manage users, or tap a user for details and stats.
+7. Use **Ban** to remove a user (requires an admin token).
+
+### About banning
+
+- On the backend, banning means **`DELETE /usuarios/:id`** (permanent deletion).
+- Deleted users no longer appear in API lists; the app keeps a **local cache** for the “Banned users” section and dashboard counter.
+- There is no “unban” endpoint — simplified academic flow.
+
+### Admin task permissions
+
+With `role: admin`, `GET /tarefas` returns **all tasks**, enabling per-user statistics in the panel. Regular users still see only their own tasks.
 
 ---
 
@@ -380,6 +449,9 @@ curl -X POST http://localhost:3000/login \
 | `flutter run -d windows` fails | Missing C++ toolchain | Install VS 2022 with *Desktop development with C++*; run `flutter doctor` |
 | Network error on Android emulator | `localhost` on emulator | Use `10.0.2.2:3000` instead of `localhost` (if testing on Android) |
 | Invalid token after 1 h | JWT expiration | Log in again (`expiresIn: '1h'`) |
+| Admin panel does not show | Stale JWT without updated `role` | Log out and log in after MySQL `UPDATE` |
+| `403` when banning | Logged-in user is not admin | Confirm `role = 'admin'` in DB and re-login |
+| Login required every launch | Token not persisted | Run `flutter pub get`; confirm `shared_preferences` dependency |
 
 ---
 
