@@ -11,7 +11,7 @@ class ApiClient {
   static final instance = ApiClient._();
 
   // Troque pela URL de produção via .env quando for ao ar
-  static const _baseUrl = 'http://localhost:3000';
+  static const _baseUrl = 'http://10.188.212.166:3000';
 
   String? _token;
 
