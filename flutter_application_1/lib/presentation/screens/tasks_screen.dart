@@ -16,8 +16,9 @@ import '../widgets/new_task_modal.dart';
 
 class TasksScreen extends StatefulWidget {
   final UserModel user;
+  final VoidCallback onLogout;
 
-  const TasksScreen({super.key, required this.user});
+  const TasksScreen({super.key, required this.user, required this.onLogout});
 
   @override
   State<TasksScreen> createState() => _TasksScreenState();
@@ -58,10 +59,6 @@ class _TasksScreenState extends State<TasksScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _handleLogout() {
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
 
   Future<void> _onAddTask({
@@ -295,7 +292,7 @@ class _TasksScreenState extends State<TasksScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppHeader(user: widget.user, onLogout: _handleLogout),
+            AppHeader(user: widget.user, onLogout: widget.onLogout),
             _Divider(),
             Expanded(
               child: _isLoading
