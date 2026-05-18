@@ -20,4 +20,23 @@ abstract final class AppColors {
   // Misc
   static const avatarBackground = Color(0xFFE8622A);
   static const avatarForeground = Color(0xFFFFFFFF);
+
+  // Status / Admin
+  static const danger = Color(0xFFE53935);
+  static const dangerDark = Color(0xFFD32F2F);
+  static const dangerLight = Color(0xFFFFEBEE);
+  static const success = Color(0xFF43A047);
+  static const successLight = Color(0xFFE8F5E9);
+  static const info = Color(0xFF1E88E5);
+  static const infoLight = Color(0xFFE3F2FD);
+  static const muted = Color(0xFFF5F5F5);
+  static const mutedText = Color(0xFF9E9E9E);
+
+  static const List<Color> avatarPalette = [
+    Color(0xFFE8622A),
+    Color(0xFF1E88E5),
+    Color(0xFF8E24AA),
+    Color(0xFF43A047),
+    Color(0xFF6D4C41),
+  ];
 }
