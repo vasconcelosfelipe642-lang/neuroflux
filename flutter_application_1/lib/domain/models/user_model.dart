@@ -15,10 +15,19 @@ class UserModel {
     return UserModel(
       id: json['id'].toString(),
       nome: json['nome'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String? ?? '',
       role: json['role'] as String? ?? 'user',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nome': nome,
+        'email': email,
+        'role': role,
+      };
+
+  bool get isAdmin => role == 'admin';
 
   /// Iniciais para o avatar (ex: "Maria Silva" → "MS")
   String get initials {
