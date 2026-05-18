@@ -11,7 +11,9 @@ import '../widgets/progress_big_card.dart';
 
 class ProgressScreen extends StatefulWidget {
   final UserModel user;
-  const ProgressScreen({super.key, required this.user});
+  final VoidCallback onLogout;
+
+  const ProgressScreen({super.key, required this.user, required this.onLogout});
 
   @override
   State<ProgressScreen> createState() => _ProgressScreenState();
@@ -54,10 +56,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
     }
   }
 
-  void _handleLogout() {
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     final int completedCount = _tasks.where((t) => t.isCompleted).length;
@@ -69,7 +67,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           children: [
             AppHeader(
               user: widget.user,
-              onLogout: _handleLogout,
+              onLogout: widget.onLogout,
             ),
             Expanded(
               child: _isLoading
