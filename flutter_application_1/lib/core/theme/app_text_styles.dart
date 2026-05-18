@@ -155,4 +155,98 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w400,
     height: 1.5,
   );
+
+  // ── Admin ─────────────────────────────────────────────────
+  static const adminPanelLabel = TextStyle(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w400,
+  );
+
+  static const adminTitle = TextStyle(
+    fontSize: 18,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w700,
+  );
+
+  static const adminScreenTitle = TextStyle(
+    fontSize: 22,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w800,
+  );
+
+  static const adminBadge = TextStyle(
+    fontSize: 11,
+    color: Colors.white,
+    fontWeight: FontWeight.w700,
+  );
+
+  static const adminStatNumber = TextStyle(
+    fontSize: 26,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w800,
+    height: 1.1,
+  );
+
+  static const adminStatLabel = TextStyle(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w500,
+    height: 1.3,
+  );
+
+  static const adminUserName = TextStyle(
+    fontSize: 15,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w700,
+  );
+
+  static const adminUserMeta = TextStyle(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w400,
+  );
+
+  static const adminLink = TextStyle(
+    fontSize: 13,
+    color: AppColors.primary,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const adminDangerButton = TextStyle(
+    fontSize: 13,
+    color: AppColors.dangerDark,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const adminModalTitle = TextStyle(
+    fontSize: 20,
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w800,
+  );
+
+  static const adminModalBody = TextStyle(
+    fontSize: 14,
+    color: AppColors.textSecondary,
+    fontWeight: FontWeight.w400,
+    height: 1.45,
+  );
+
+  static const adminHighlightPercent = TextStyle(
+    fontSize: 26,
+    color: AppColors.primary,
+    fontWeight: FontWeight.w800,
+  );
+
+  static const adminStatusActive = TextStyle(
+    fontSize: 12,
+    color: AppColors.success,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const adminStatusBanned = TextStyle(
+    fontSize: 12,
+    color: AppColors.mutedText,
+    fontWeight: FontWeight.w600,
+  );
 }
