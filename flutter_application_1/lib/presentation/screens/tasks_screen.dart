@@ -126,15 +126,33 @@ class _TasksScreenState extends State<TasksScreen> {
   Future<void> _toggleSubtask(TaskModel parentTask, SubtaskModel subtask) async {
     try {
       final updatedSub = await _subtarefaService.alternarConcluida(subtask);
+
       setState(() {
         _tasks = _tasks.map((t) {
-          if (t.id == parentTask.id) {
-            final newSubs = t.subtasks.map((s) => s.id == updatedSub.id ? updatedSub : s).toList();
-            return t.copyWith(subtasks: newSubs);
-          }
-          return t;
+          if (t.id != parentTask.id) return t;
+
+          final newSubs = t.subtasks
+              .map((s) => s.id == updatedSub.id ? updatedSub : s)
+              .toList();
+
+          // Regra de negócio: se alguma subtarefa foi DESMARCADA e a tarefa
+          // pai estava concluída, desmarca a tarefa pai automaticamente
+          final algumaPendente = newSubs.any((s) => !s.isCompleted);
+          final deveDesmarcarPai = t.isCompleted && algumaPendente;
+
+          return t.copyWith(
+            subtasks: newSubs,
+            isCompleted: deveDesmarcarPai ? false : t.isCompleted,
+          );
         }).toList();
       });
+
+      // Se a tarefa pai foi desmarcada automaticamente, persiste no backend
+      final tarefaAtualizada = _tasks.firstWhere((t) => t.id == parentTask.id);
+      if (parentTask.isCompleted && !tarefaAtualizada.isCompleted) {
+        await _tarefaService.atualizar(tarefaAtualizada);
+      }
+
       _tarefaService.notifyTasksChanged();
     } on AppException catch (e) {
       _showError(e.message);
