@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       this.hasMany(models.Subtarefa, {
         foreignKey: 'tarefaId',
-        as: 'subtarefas'
+        as: 'subtarefas',
       });
     }
   }
@@ -37,6 +37,15 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Tarefa',
     tableName: 'Tarefas',
     paranoid: true,
+    hooks: {
+      beforeDestroy: async (tarefa, options) => {
+        await sequelize.models.Subtarefa.destroy({
+          where: { tarefaId: tarefa.id },
+          transaction: options.transaction
+        });
+        console.log(`[HOOK] Subtarefas da tarefa ID ${tarefa.id} foram removidas via Soft Delete!`);
+      }
+    }
   });
   return Tarefa;
 };

@@ -100,18 +100,24 @@ module.exports = {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const tarefa = await Tarefa.findByPk(id);
+      const tarefa = await Tarefa.findByPk(id, {
+        include: [{
+          model: Subtarefa,
+          as: 'subtarefas'
+        }]
+      });
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
 
       if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Você não tem permissão para deletar esta tarefa.' });
       }
-
       await tarefa.destroy(); 
+      
       return res.json({ message: 'Tarefa deletada com sucesso.' });
     } catch (error) {
-      return res.status(500).json({ error: 'Erro ao deletar tarefa.' });
+      console.error("ERRO AO DELETAR TAREFA:", error);
+      return res.status(500).json({ error: 'Erro ao deletar tarefa.', details: error.message });
     }
   }
 };
