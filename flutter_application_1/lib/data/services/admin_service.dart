@@ -44,8 +44,10 @@ class AdminService {
     final users = await listarUsuarios();
     final tasks = await listarTodasTarefas();
     final banned = await listarBanidos();
+    final registeredUsers =
+        users.where((u) => u.role != 'admin').length;
     return AdminStatsModel(
-      totalUsers: users.length,
+      totalUsers: registeredUsers,
       totalTasks: tasks.length,
       completedTasks: tasks.where((t) => t.isCompleted).length,
       bannedUsers: banned.length,
