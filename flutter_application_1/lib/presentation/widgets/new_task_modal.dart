@@ -3,13 +3,14 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
-import '../../domain/models/subtask_model.dart';
 
-/// Callback chamado quando o usuário confirma a criação da tarefa.
-/// O backend da equipe irá implementar a lógica de persistência.
-typedef OnAddTask = void Function({
+/// Callback que entrega ao caller o título, descrição e lista de
+/// títulos de subtarefas. O caller (TasksScreen) é quem chama a API
+/// na sequência correta: cria tarefa → pega id → cria subtarefas.
+typedef OnAddTask = Future<void> Function({
   required String title,
-  required List<SubtaskModel> subtasks,
+  String? description,
+  required List<String> subtaskTitles,
 });
 
 class NewTaskModal extends StatefulWidget {
@@ -17,7 +18,6 @@ class NewTaskModal extends StatefulWidget {
 
   const NewTaskModal({super.key, required this.onAddTask});
 
-  /// Abre o modal como bottom sheet.
   static Future<void> show(BuildContext context, {required OnAddTask onAddTask}) {
     return showModalBottomSheet(
       context: context,
@@ -35,7 +35,10 @@ class _NewTaskModalState extends State<NewTaskModal> {
   final _taskController = TextEditingController();
   final _subtaskController = TextEditingController();
   final _taskFocus = FocusNode();
-  final _subtasks = <SubtaskModel>[];
+
+  /// Títulos das subtarefas adicionadas localmente antes de salvar
+  final _subtaskTitles = <String>[];
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -49,22 +52,33 @@ class _NewTaskModalState extends State<NewTaskModal> {
     final text = _subtaskController.text.trim();
     if (text.isEmpty) return;
     setState(() {
-      _subtasks.add(SubtaskModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: text,
-      ));
+      _subtaskTitles.add(text);
       _subtaskController.clear();
     });
   }
 
-  void _submit() {
-    final title = _taskController.text.trim();
-    if (title.isEmpty) return;
-    widget.onAddTask(title: title, subtasks: List.unmodifiable(_subtasks));
-    Navigator.of(context).pop();
+  void _removeSubtask(int index) {
+    setState(() => _subtaskTitles.removeAt(index));
   }
 
-  bool get _canSubmit => _taskController.text.trim().isNotEmpty;
+  Future<void> _submit() async {
+    final title = _taskController.text.trim();
+    if (title.isEmpty) return;
+
+    setState(() => _isSaving = true);
+    try {
+      await widget.onAddTask(
+        title: title,
+        description: null,
+        subtaskTitles: List.from(_subtaskTitles),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  bool get _canSubmit => _taskController.text.trim().isNotEmpty && !_isSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +92,7 @@ class _NewTaskModalState extends State<NewTaskModal> {
         ),
       ),
       padding: EdgeInsets.fromLTRB(
-        AppSizes.xl,
-        AppSizes.xl,
-        AppSizes.xl,
-        AppSizes.xl + bottomInset,
+        AppSizes.xl, AppSizes.xl, AppSizes.xl, AppSizes.xl + bottomInset,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -99,14 +110,26 @@ class _NewTaskModalState extends State<NewTaskModal> {
             controller: _subtaskController,
             onAdd: _addSubtask,
           ),
-          if (_subtasks.isNotEmpty) ...[
+          if (_subtaskTitles.isNotEmpty) ...[
             const SizedBox(height: AppSizes.md),
-            _SubtaskChips(subtasks: _subtasks),
+            _SubtaskList(
+              titles: _subtaskTitles,
+              onRemove: _removeSubtask,
+            ),
           ],
           const SizedBox(height: AppSizes.xxl),
           ElevatedButton(
             onPressed: _canSubmit ? _submit : null,
-            child: Text(AppStrings.addTask, style: AppTextStyles.fabLabel),
+            child: _isSaving
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(AppStrings.addTask),
           ),
         ],
       ),
@@ -114,9 +137,10 @@ class _NewTaskModalState extends State<NewTaskModal> {
   }
 }
 
+// ── Subwidgets ───────────────────────────────────────────────
+
 class _ModalHeader extends StatelessWidget {
   final VoidCallback onClose;
-
   const _ModalHeader({required this.onClose});
 
   @override
@@ -160,9 +184,7 @@ class _TaskField extends StatelessWidget {
           focusNode: focusNode,
           onChanged: onChanged,
           textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(
-            hintText: AppStrings.taskFieldHint,
-          ),
+          decoration: const InputDecoration(hintText: AppStrings.taskFieldHint),
         ),
       ],
     );
@@ -182,70 +204,57 @@ class _SubtaskField extends StatelessWidget {
       children: [
         Text(AppStrings.subtaskFieldLabel, style: AppTextStyles.fieldLabel),
         const SizedBox(height: AppSizes.sm),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: AppStrings.subtaskFieldHint,
-                ),
-                onSubmitted: (_) => onAdd(),
-              ),
+        TextField(
+          controller: controller,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: AppStrings.subtaskFieldHint,
+            suffixIcon: IconButton(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
             ),
-            const SizedBox(width: AppSizes.sm),
-            _AddSubtaskButton(onPressed: onAdd),
-          ],
+          ),
+          onSubmitted: (_) => onAdd(),
         ),
       ],
     );
   }
 }
 
-class _AddSubtaskButton extends StatelessWidget {
-  final VoidCallback onPressed;
+/// Lista das subtarefas adicionadas — com botão de remover
+class _SubtaskList extends StatelessWidget {
+  final List<String> titles;
+  final ValueChanged<int> onRemove;
 
-  const _AddSubtaskButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(color: AppColors.border, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.lg,
-          vertical: AppSizes.md,
-        ),
-      ),
-      child: Text(AppStrings.addSubtask, style: AppTextStyles.fieldLabel),
-    );
-  }
-}
-
-class _SubtaskChips extends StatelessWidget {
-  final List<SubtaskModel> subtasks;
-
-  const _SubtaskChips({required this.subtasks});
+  const _SubtaskList({required this.titles, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSizes.sm,
-      runSpacing: AppSizes.sm,
-      children: subtasks
-          .map((s) => Chip(
-                label: Text(s.title, style: const TextStyle(fontSize: 12)),
-                backgroundColor: AppColors.primaryLight,
-                labelStyle: const TextStyle(color: AppColors.primary),
-                side: BorderSide.none,
-              ))
-          .toList(),
+    return Column(
+      children: titles.asMap().entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSizes.xs),
+          child: Row(
+            children: [
+              const Icon(Icons.drag_handle, size: 16, color: AppColors.textHint),
+              const SizedBox(width: AppSizes.sm),
+              Expanded(
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => onRemove(entry.key),
+                child: const Icon(Icons.close, size: 16, color: AppColors.textHint),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

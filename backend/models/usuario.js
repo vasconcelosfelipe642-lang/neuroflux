@@ -1,11 +1,12 @@
 'use strict';
+const bcrypt = require('bcryptjs');
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
     static associate(models) {
       this.hasMany(models.Tarefa, {
-        foreignKey: 'usuario_id',
+        foreignKey: 'usuarioId',
         as: 'tarefas'
       });
     }
@@ -23,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         isEmail: true 
       }
     },
+    role:{
+     type: DataTypes.ENUM('admin', 'user'),
+    defaultValue: 'user'
+    },
     senha: {
       type: DataTypes.STRING,
       allowNull: false
@@ -31,8 +36,20 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Usuario',    
     tableName: 'Usuarios',  
-    paranoid: true,          
-    timestamps: true        
+    paranoid: false,          
+    timestamps: true,
+    hooks: {
+      beforeCreate: async (usuario) => {
+        if (usuario.senha) {
+          usuario.senha = await bcrypt.hash(usuario.senha, 10);
+        }
+      },
+      beforeUpdate: async (usuario) => {
+        if (usuario.changed('senha')) {
+          usuario.senha = await bcrypt.hash(usuario.senha, 10);
+        }
+      }
+    }
   });
 
   return Usuario;

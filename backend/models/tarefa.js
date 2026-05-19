@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
 
       this.belongsTo(models.Usuario, {
-        foreignKey: 'usuario_id',
+        foreignKey: 'usuarioId',
         as: 'usuario'
       });
       this.hasMany(models.Subtarefa, {
-        foreignKey: 'tarefa_id',
+        foreignKey: 'tarefaId',
         as: 'subtarefas'
       });
     }
@@ -20,12 +20,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    descricao: DataTypes.TEXT,
+    descricao: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     concluida: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    usuario_id: {
+    usuarioId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }

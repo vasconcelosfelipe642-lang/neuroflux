@@ -6,7 +6,7 @@ module.exports = {
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       titulo: { type: Sequelize.STRING, allowNull: false },
       concluida: { type: Sequelize.BOOLEAN, defaultValue: false },
-      tarefa_id: {
+      tarefaId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: 'Tarefas', key: 'id' }, 
