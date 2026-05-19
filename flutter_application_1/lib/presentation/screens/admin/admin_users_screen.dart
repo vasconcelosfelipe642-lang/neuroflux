@@ -15,7 +15,7 @@ import 'admin_user_detail_screen.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   final UserModel admin;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   const AdminUsersScreen({
     super.key,

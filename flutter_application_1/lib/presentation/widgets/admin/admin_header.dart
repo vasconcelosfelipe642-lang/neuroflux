@@ -8,7 +8,7 @@ import '../../../domain/models/user_model.dart';
 
 class AdminHeader extends StatelessWidget {
   final UserModel admin;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
   final bool exclusiveLabel;
   final bool showBack;
   final VoidCallback? onBack;
@@ -52,9 +52,13 @@ class AdminHeader extends StatelessWidget {
             ),
             const Divider(color: AppColors.border),
             ListTile(
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(modalContext);
-                onLogout();
+                final navigator = Navigator.of(context);
+                if (navigator.canPop()) {
+                  navigator.popUntil((route) => route.isFirst);
+                }
+                await onLogout();
               },
               leading: const Icon(Icons.logout, color: Colors.redAccent),
               title: const Text(

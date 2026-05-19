@@ -16,7 +16,7 @@ import '../../widgets/admin/ban_user_dialog.dart';
 class AdminUserDetailScreen extends StatefulWidget {
   final UserModel admin;
   final String userId;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
   final VoidCallback? onBanned;
 
   const AdminUserDetailScreen({
