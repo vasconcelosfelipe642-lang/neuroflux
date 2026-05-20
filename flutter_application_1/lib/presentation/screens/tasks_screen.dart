@@ -201,14 +201,26 @@ class _TasksScreenState extends State<TasksScreen> {
     if (result != null && result.isNotEmpty) {
       try {
         final novaSub = await _subtarefaService.criar(titulo: result, tarefaId: task.id);
+
         setState(() {
           _tasks = _tasks.map((t) {
-            if (t.id == task.id) {
-              return t.copyWith(subtasks: [...t.subtasks, novaSub]);
-            }
-            return t;
+            if (t.id != task.id) return t;
+
+            // Regra de negócio: nova subtarefa sempre começa pendente.
+            // Se a tarefa pai estava concluída, ela deve ser desmarcada.
+            return t.copyWith(
+              subtasks: [...t.subtasks, novaSub],
+              isCompleted: false,
+            );
           }).toList();
         });
+
+        // Persiste a desmarcação da tarefa pai no backend, se necessário
+        if (task.isCompleted) {
+          final tarefaAtualizada = _tasks.firstWhere((t) => t.id == task.id);
+          await _tarefaService.atualizar(tarefaAtualizada);
+        }
+
         _tarefaService.notifyTasksChanged();
       } on AppException catch (e) {
         _showError(e.message);
