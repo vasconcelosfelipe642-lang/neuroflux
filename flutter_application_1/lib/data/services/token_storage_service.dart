@@ -1,27 +1,29 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/models/user_model.dart';
 
-/// Persiste o JWT e o cache local de usuários banidos (delete na API).
+/// Persiste o JWT em armazenamento seguro e o cache local de usuários banidos.
 abstract final class TokenStorageService {
   static const _tokenKey = 'auth_token';
   static const _bannedUsersKey = 'banned_users_cache';
 
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
   static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    await _secureStorage.write(key: _tokenKey, value: token);
   }
 
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return _secureStorage.read(key: _tokenKey);
   }
 
   static Future<void> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
+    await _secureStorage.delete(key: _tokenKey);
   }
 
   static Future<void> addBannedUser(UserModel user) async {
