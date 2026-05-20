@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../../core/errors/app_exception.dart';
 import '../../domain/models/admin_stats_model.dart';
+import '../../domain/models/user_task_stats_model.dart';
 import '../../domain/models/task_model.dart';
 import '../../domain/models/user_model.dart';
 import 'api_client.dart';
