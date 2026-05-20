@@ -54,12 +54,16 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 
 | Area | Description |
 |------|-------------|
-| **Authentication** | User registration, login, and JWT session |
-| **Tasks** | Create, list, edit, and mark tasks as completed |
-| **Subtasks** | Split a task into smaller steps |
-| **Progress** | Dedicated screen for completed and pending tasks |
-| **Daily progress** | Indicator on the main tab (e.g. “X of Y tasks completed”) |
-| **Admin panel** | Overview, user management, task statistics, and ban (role `admin`) |
+| **Splash & onboarding** | Animated launch screen; 3-page tour on first run (`shared_preferences` flag) |
+| **Authentication** | Sign-up, login, JWT session, and animated screen transitions |
+| **Tasks & subtasks** | Full CRUD; a task can only be completed when all subtasks are done |
+| **Focus mode** | One task at a time, immersive background, tappable subtasks, progress bar |
+| **Pomodoro timer** | 10, 15, or 25 minutes per task (fully local, no API) |
+| **Progress** | Dedicated tab, daily card, motivational quote, and weekly view |
+| **Light/dark theme** | Toggle in the header with local persistence |
+| **Sensory feedback** | Haptics on key actions; confetti at 100% daily progress; optional completion sound |
+| **Dynamic avatar** | Avatar color derived from the user's name |
+| **Admin panel** | Overview, users, statistics, promote to admin, and ban (`role: admin`) |
 | **Persistent session** | JWT stored locally — login survives app restarts |
 
 ---
@@ -73,14 +77,18 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 | [Flutter](https://flutter.dev/) (Dart 3+) | Cross-platform UI |
 | [Material Design](https://m3.material.io/) | Components and visual theme |
 | [http](https://pub.dev/packages/http) | HTTP client for the REST API |
-| [shared_preferences](https://pub.dev/packages/shared_preferences) | JWT persistence and local banned-users cache |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | JWT, onboarding flag, and banned-users cache |
+| [flutter_animate](https://pub.dev/packages/flutter_animate) | Animations (splash, onboarding, focus mode, tasks) |
+| [confetti](https://pub.dev/packages/confetti) | Celebration at 100% daily progress |
+| [audioplayers](https://pub.dev/packages/audioplayers) | Optional sound on task completion |
+| [lottie](https://pub.dev/packages/lottie) | Asset-based animations |
 
 **Code organization (layers):**
 
-- `lib/core/` — theme, constants, exceptions, utilities
+- `lib/core/` — theme (`ThemeProvider`), constants, navigation (`app_transitions.dart`), exceptions, utilities
 - `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — domain models
-- `lib/presentation/` — screens and widgets (includes `screens/admin/` and `widgets/admin/`)
+- `lib/presentation/` — screens (`splash`, `onboarding`, `auth_gate`, `focus`, `home_shell`, etc.) and reusable widgets
 
 ### Backend — `backend/`
 
@@ -146,11 +154,22 @@ neuroflux/
     └── lib/
         ├── main.dart
         ├── core/
+        │   ├── navigation/         # FadePageRoute, SlidePageRoute
+        │   ├── theme/              # Light/dark theme
+        │   └── utils/              # Onboarding, sound, confetti, etc.
         ├── data/services/
         ├── domain/models/
         └── presentation/
-            ├── screens/admin/      # Dashboard, user list, user detail
-            └── widgets/admin/      # Admin panel UI components
+            ├── screens/
+            │   ├── splash_screen.dart
+            │   ├── onboarding_screen.dart
+            │   ├── auth_gate.dart
+            │   ├── focus_screen.dart
+            │   ├── home_shell.dart
+            │   └── admin/
+            └── widgets/
+                ├── pomodoro_timer.dart
+                └── admin/
 ```
 
 ---
@@ -369,13 +388,23 @@ curl -X POST http://localhost:3000/login \
 
 ## App usage flow
 
+### First launch and return visits
+
+```text
+Splash (animated logo) → Onboarding (3 screens, first time only) → Login or Sign up → Home
+```
+
+On later launches, onboarding is skipped automatically.
+
 ### Regular user (`role: user`)
 
 1. **Sign up** or **log in** with email and password.
-2. On the **Tasks** tab, create a new task (with optional subtasks).
-3. Mark tasks and subtasks as completed as you progress.
-4. Track **daily progress** on the top card and on the **Progress** tab.
-5. Tap your **avatar** at the top to open the profile sheet and **log out**.
+2. On the **Tasks** tab, create tasks with optional subtasks.
+3. Complete subtasks first, then the task (tasks with subtasks require all subtasks done).
+4. Use **Focus mode** (header icon when tasks are pending) to work on one task at a time.
+5. Tap the **timer** on a card to open the **Pomodoro** (10 / 15 / 25 min).
+6. Track the day on the top card and **Progress** tab (daily quote and weekly view).
+7. Toggle **light/dark theme** in the header; tap **avatar** to **log out**.
 
 > The session stays active after closing the app: the token is restored on the next launch.
 
@@ -402,20 +431,16 @@ Logout works like regular users: tap **avatar** → **Log out**.
 
 ### Promoting a user to admin
 
-For local/academic use, update the database directly:
+**In the app (recommended):** in the admin panel, open user details and tap **Promote to administrator** (`PUT /usuarios/:id` with `role: admin`).
+
+**Via MySQL (local alternative):**
 
 ```sql
--- Replace with the target user's email
 UPDATE usuarios SET role = 'admin' WHERE email = 'you@email.com';
-```
-
-Verify:
-
-```sql
 SELECT id, nome, email, role FROM usuarios WHERE email = 'you@email.com';
 ```
 
-> **Important:** the JWT is issued at login and embeds `role`. After changing the role in MySQL, **log out and log in again** (or clear app data) so the app picks up the admin profile.
+> **Important:** the JWT is issued at login and embeds `role`. After promoting, **log out and log in again** so the app picks up the admin profile.
 
 ### Step-by-step to test the panel
 

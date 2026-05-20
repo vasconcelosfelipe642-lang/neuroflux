@@ -54,13 +54,17 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 
 | Área | Descrição |
 |------|-----------|
-| **Autenticação** | Cadastro de usuário, login e sessão via token JWT |
-| **Tarefas** | Criar, listar, editar e marcar tarefas como concluídas |
-| **Subtarefas** | Dividir uma tarefa em passos menores |
-| **Progresso** | Tela dedicada com visão de tarefas completas e pendentes |
-| **Progresso do dia** | Indicador na aba principal (ex.: “X de Y tarefas concluídas”) |
-| **Painel administrativo** | Visão geral, gestão de usuários, estatísticas de tarefas e banimento (role `admin`) |
-| **Sessão persistente** | Token JWT salvo localmente — o app mantém o login após fechar ou recarregar |
+| **Splash e onboarding** | Tela de abertura animada; tour de 3 páginas na primeira execução (flag em `shared_preferences`) |
+| **Autenticação** | Cadastro, login, sessão JWT e transições animadas entre telas |
+| **Tarefas e subtarefas** | CRUD completo; tarefa só conclui quando todas as subtarefas estiverem feitas |
+| **Modo Foco** | Uma tarefa por vez, fundo imersivo, subtarefas clicáveis e barra de progresso |
+| **Timer Pomodoro** | 10, 15 ou 25 min por tarefa (100% local, sem API) |
+| **Progresso** | Aba dedicada, card do dia, frase motivacional e visão semanal |
+| **Tema claro/escuro** | Alternância no header com persistência local |
+| **Feedback sensorial** | Haptic em ações-chave; confetti ao completar 100% do dia; som opcional ao concluir tarefa |
+| **Avatar dinâmico** | Cor do avatar derivada do nome do usuário |
+| **Painel administrativo** | Visão geral, usuários, estatísticas, promover admin e banir (`role: admin`) |
+| **Sessão persistente** | Token JWT salvo localmente — login mantido após fechar o app |
 
 ---
 
@@ -73,14 +77,18 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 | [Flutter](https://flutter.dev/) (Dart 3+) | Interface multiplataforma |
 | [Material Design](https://m3.material.io/) | Componentes e tema visual |
 | [http](https://pub.dev/packages/http) | Cliente HTTP para a API REST |
-| [shared_preferences](https://pub.dev/packages/shared_preferences) | Persistência do token JWT e cache local de usuários banidos |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | Token JWT, onboarding concluído e cache de usuários banidos |
+| [flutter_animate](https://pub.dev/packages/flutter_animate) | Animações (splash, onboarding, modo foco, tarefas) |
+| [confetti](https://pub.dev/packages/confetti) | Celebração ao atingir 100% do progresso do dia |
+| [audioplayers](https://pub.dev/packages/audioplayers) | Som opcional ao concluir tarefa |
+| [lottie](https://pub.dev/packages/lottie) | Animações em assets |
 
 **Organização do código (camadas):**
 
-- `lib/core/` — tema, constantes, exceções e utilitários
+- `lib/core/` — tema (`ThemeProvider`), constantes, navegação (`app_transitions.dart`), exceções e utilitários
 - `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — modelos de domínio
-- `lib/presentation/` — telas e widgets (inclui `screens/admin/` e `widgets/admin/`)
+- `lib/presentation/` — telas (`splash`, `onboarding`, `auth_gate`, `focus`, `home_shell`, etc.) e widgets reutilizáveis
 
 ### Backend — `backend/`
 
@@ -146,11 +154,22 @@ neuroflux/
     └── lib/
         ├── main.dart
         ├── core/
+        │   ├── navigation/         # FadePageRoute, SlidePageRoute
+        │   ├── theme/              # Tema claro/escuro
+        │   └── utils/              # Onboarding, som, confetti, etc.
         ├── data/services/
         ├── domain/models/
         └── presentation/
-            ├── screens/admin/      # Painel, gestão e detalhe de usuários
-            └── widgets/admin/      # Componentes do painel administrativo
+            ├── screens/
+            │   ├── splash_screen.dart
+            │   ├── onboarding_screen.dart
+            │   ├── auth_gate.dart
+            │   ├── focus_screen.dart
+            │   ├── home_shell.dart
+            │   └── admin/
+            └── widgets/
+                ├── pomodoro_timer.dart
+                └── admin/
 ```
 
 ---
@@ -369,13 +388,23 @@ curl -X POST http://localhost:3000/login \
 
 ## Fluxo de uso do aplicativo
 
+### Primeira abertura e retorno
+
+```text
+Splash (logo animada) → Onboarding (3 telas, só na 1ª vez) → Login ou Cadastro → Home
+```
+
+Nas aberturas seguintes, o onboarding é pulado automaticamente.
+
 ### Usuário comum (`role: user`)
 
 1. **Cadastre-se** ou **entre** com e-mail e senha.
-2. Na aba **Tarefas**, crie uma nova tarefa (com subtarefas opcionais).
-3. Marque tarefas e subtarefas como concluídas conforme avançar.
-4. Acompanhe o **progresso do dia** no card superior e na aba **Progresso**.
-5. Toque no **avatar** no topo para abrir o perfil e **sair do aplicativo**.
+2. Na aba **Tarefas**, crie tarefas com subtarefas opcionais.
+3. Marque subtarefas e, em seguida, a tarefa (a conclusão da tarefa exige subtarefas finalizadas, quando existirem).
+4. Use **Modo Foco** (ícone no header, com tarefas pendentes) para trabalhar uma tarefa por vez.
+5. Toque no **timer** em um card para abrir o **Pomodoro** (10 / 15 / 25 min).
+6. Acompanhe o dia no card superior e na aba **Progresso** (frase do dia e visão semanal).
+7. Alterne **tema claro/escuro** no header; toque no **avatar** para **sair**.
 
 > A sessão permanece ativa após fechar o app: o token é restaurado automaticamente na próxima abertura.
 
@@ -402,20 +431,16 @@ O logout do admin funciona como no usuário comum: toque no **avatar** → **Sai
 
 ### Como promover um usuário a administrador
 
-Em ambiente acadêmico/local, a forma mais simples é alterar o banco diretamente:
+**Pelo app (recomendado):** no painel admin, abra o detalhe do usuário e use **Promover a administrador** (chama `PUT /usuarios/:id` com `role: admin`).
+
+**Pelo MySQL (alternativa local):**
 
 ```sql
--- Substitua pelo e-mail do usuário desejado
 UPDATE usuarios SET role = 'admin' WHERE email = 'seu@email.com';
-```
-
-Confirme a alteração:
-
-```sql
 SELECT id, nome, email, role FROM usuarios WHERE email = 'seu@email.com';
 ```
 
-> **Importante:** o token JWT é gerado no login e inclui o `role`. Depois de mudar o papel no banco, **faça logout e login novamente** (ou limpe os dados do app) para o app reconhecer o perfil admin.
+> **Importante:** o token JWT é gerado no login e inclui o `role`. Depois de promover, **faça logout e login novamente** para o app reconhecer o perfil admin.
 
 ### Passo a passo para testar o painel
 
