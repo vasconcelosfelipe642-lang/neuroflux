@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/theme_scope.dart';
-import '../../core/theme/app_text_styles.dart';
+
 import '../../core/constants/app_sizes.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/theme_scope.dart';
+import 'weekly_day_item.dart';
 
 class WeeklyView extends StatelessWidget {
   const WeeklyView({super.key});
@@ -37,7 +39,7 @@ class WeeklyView extends StatelessWidget {
               final day = monday.add(Duration(days: index));
               final isToday = day == today;
               return Expanded(
-                child: _DayItem(
+                child: WeeklyDayItem(
                   label: _weekdayLabels[index],
                   dayNumber: day.day,
                   isToday: isToday,
@@ -51,53 +53,5 @@ class WeeklyView extends StatelessWidget {
         .animate()
         .slideY(begin: 0.08, end: 0, duration: 400.ms, curve: Curves.easeOutCubic)
         .fadeIn(duration: 400.ms);
-  }
-}
-
-class _DayItem extends StatelessWidget {
-  final String label;
-  final int dayNumber;
-  final bool isToday;
-
-  const _DayItem({
-    required this.label,
-    required this.dayNumber,
-    required this.isToday,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ThemeScope.watch(context);
-
-    return Column(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: isToday ? AppColors.primary : AppColors.divider,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: isToday ? Colors.white : AppColors.textSecondary,
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSizes.xs),
-        Text(
-          '$dayNumber',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-            color: isToday ? AppColors.primary : AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
   }
 }
