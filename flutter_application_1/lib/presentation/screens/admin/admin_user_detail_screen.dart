@@ -12,6 +12,7 @@ import '../../../domain/models/task_model.dart';
 import '../../../domain/models/user_model.dart';
 import '../../widgets/admin/admin_header.dart';
 import '../../widgets/admin/ban_user_dialog.dart';
+import '../../widgets/admin/promote_user_dialog.dart';
 
 class AdminUserDetailScreen extends StatefulWidget {
   final UserModel admin;
@@ -61,6 +62,26 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       if (mounted) Navigator.pop(context);
     } finally {
       if (mounted && _isLoading) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _confirmPromote() async {
+    final user = _user;
+    if (user == null || user.isAdmin) return;
+
+    final confirmed = await PromoteUserDialog.show(context, user: user);
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final updated = await _adminService.promoverParaAdmin(user);
+      if (!mounted) return;
+      setState(() => _user = updated);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.adminPromoteSuccess)),
+      );
+    } on AppException catch (e) {
+      _showError(e.message);
     }
   }
 
@@ -207,17 +228,34 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             border: Border.all(color: AppColors.border),
           ),
           child: _tasks.isEmpty
-              ? const Text('Nenhuma tarefa registrada.',
+              ? Text('Nenhuma tarefa registrada.',
                   style: AppTextStyles.adminUserMeta)
               : Column(
                   children: _tasks.take(10).map(_ActivityRow.new).toList(),
                 ),
         ),
         const SizedBox(height: AppSizes.xxl),
+        if (!user.isAdmin) ...[
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _confirmPromote,
+              icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
+              label: Text(AppStrings.adminPromoteToAdmin),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSizes.md),
+        ],
         SizedBox(
           width: double.infinity,
           child: TextButton.icon(
-            onPressed: _confirmBan,
+            onPressed: user.isAdmin ? null : _confirmBan,
             icon: const Icon(Icons.block, color: AppColors.dangerDark, size: 18),
             label: Text(AppStrings.adminBanThisUser,
                 style: AppTextStyles.adminDangerButton.copyWith(fontSize: 15)),
