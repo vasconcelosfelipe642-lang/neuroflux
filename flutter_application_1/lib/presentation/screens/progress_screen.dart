@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/theme_scope.dart';
-import '../../core/theme/theme_rebuild.dart';
-import '../../core/constants/app_strings.dart';
-import '../../core/constants/app_sizes.dart';
-import '../../core/errors/app_exception.dart';
-import '../../data/services/tarefa_service.dart';
-import '../../domain/models/task_model.dart';
+
 import '../../domain/models/user_model.dart';
-import '../widgets/app_header.dart';
-import '../widgets/progress_big_card.dart';
-import '../widgets/shimmer_task_card.dart';
-import '../widgets/daily_quote_card.dart';
-import '../widgets/weekly_view.dart';
+import 'progress_screen_state.dart';
 
 class ProgressScreen extends StatefulWidget {
   final UserModel user;
@@ -21,116 +10,5 @@ class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key, required this.user, required this.onLogout});
 
   @override
-  State<ProgressScreen> createState() => _ProgressScreenState();
-}
-
-class _ProgressScreenState extends State<ProgressScreen> {
-  final _tarefaService = TarefaService.instance;
-  List<TaskModel> _tasks = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTasks();
-    _tarefaService.addListener(_loadTasks);
-  }
-
-  @override
-  void dispose() {
-    _tarefaService.removeListener(_loadTasks);
-    super.dispose();
-  }
-
-  Future<void> _loadTasks() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final tasks = await _tarefaService.listar();
-      if (mounted) {
-        setState(() {
-          _tasks = tasks;
-          _isLoading = false;
-        });
-      }
-    } on AppException catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ThemeScope.watch(context);
-
-    final int completedCount = _tasks.where((t) => t.isCompleted).length;
-    final int pendingCount = _tasks.where((t) => !t.isCompleted).length;
-
-    return ThemeRebuild(
-      builder: (context) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: Column(
-              children: [
-                AppHeader(
-                  user: widget.user,
-                  onLogout: widget.onLogout,
-                ),
-                Expanded(
-                  child: _isLoading
-                      ? const SingleChildScrollView(
-                          padding: EdgeInsets.all(AppSizes.pagePadding),
-                          child: ShimmerTaskList(),
-                        )
-                      : RefreshIndicator(
-                          color: AppColors.primary,
-                          onRefresh: _loadTasks,
-                          child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(AppSizes.pagePadding),
-                            child: Column(
-                              children: [
-                                ProgressBigCard(
-                                  completedTasks: completedCount,
-                                  totalTasks: _tasks.length,
-                                ),
-                                const SizedBox(height: AppSizes.md),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: StatCard(
-                                        icon: Icons.trending_up_rounded,
-                                        count: completedCount,
-                                        label: AppStrings.tasksComplete,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSizes.md),
-                                    Expanded(
-                                      child: StatCard(
-                                        icon: Icons.calendar_today_outlined,
-                                        count: pendingCount,
-                                        label: AppStrings.tasksPending,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: AppSizes.md),
-                                const DailyQuoteCard(),
-                                const SizedBox(height: AppSizes.md),
-                                const WeeklyView(),
-                              ],
-                            ),
-                          ),
-                        ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  State<ProgressScreen> createState() => ProgressScreenState();
 }
