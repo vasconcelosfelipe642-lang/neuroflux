@@ -1,5 +1,6 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_scope.dart';
@@ -21,6 +22,8 @@ import '../widgets/task_list_empty.dart';
 import '../widgets/new_task_modal.dart';
 import '../widgets/motivational_message.dart';
 import '../widgets/shimmer_task_card.dart';
+import '../widgets/pomodoro_timer.dart';
+import 'focus_screen.dart';
 
 class TasksScreen extends StatefulWidget {
   final UserModel user;
@@ -59,10 +62,14 @@ class _TasksScreenState extends State<TasksScreen> {
   void _onDayCompleted() {
     if (DayConfettiSession.tryShow()) {
       _confettiController.play();
+      HapticFeedback.heavyImpact();
     }
   }
 
   int get _completedCount => _tasks.where((t) => t.isCompleted).length;
+
+  List<TaskModel> get _pendingTasks =>
+      _tasks.where((t) => !t.isCompleted).toList();
 
   Future<void> _loadTasks() async {
     if (!mounted) return;
@@ -131,6 +138,7 @@ class _TasksScreenState extends State<TasksScreen> {
     });
 
     if (markingComplete) {
+      HapticFeedback.mediumImpact();
       TaskSoundFeedback.instance.playComplete();
     }
 
@@ -148,6 +156,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _toggleSubtask(TaskModel parentTask, SubtaskModel subtask) async {
+    final markingComplete = !subtask.isCompleted;
     try {
       final updatedSub = await _subtarefaService.alternarConcluida(subtask);
 
@@ -178,6 +187,10 @@ class _TasksScreenState extends State<TasksScreen> {
       }
 
       _tarefaService.notifyTasksChanged();
+
+      if (markingComplete) {
+        HapticFeedback.lightImpact();
+      }
     } on AppException catch (e) {
       _showError(e.message);
     }
@@ -317,6 +330,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   void _openNewTaskModal() {
+    HapticFeedback.lightImpact();
     NewTaskModal.show(
       context,
       onAddTask: ({
@@ -328,6 +342,17 @@ class _TasksScreenState extends State<TasksScreen> {
         title: title,
         description: description,
         subtaskTitles: subtaskTitles,
+      ),
+    );
+  }
+
+  void _openFocusMode() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FocusScreen(
+          pendingTasks: _pendingTasks,
+          onToggleTask: _toggleTask,
+        ),
       ),
     );
   }
@@ -353,7 +378,12 @@ class _TasksScreenState extends State<TasksScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppHeader(user: widget.user, onLogout: widget.onLogout),
+                    AppHeader(
+                      user: widget.user,
+                      onLogout: widget.onLogout,
+                      showFocusButton: _pendingTasks.isNotEmpty,
+                      onOpenFocus: _openFocusMode,
+                    ),
                     _Divider(),
                     Expanded(
                   child: _isLoading
@@ -480,6 +510,10 @@ class _TaskList extends StatelessWidget {
         onEditSubtask: (sub) => onEditSubtask(tasks[i], sub),
         onAddSubtask: () => onAddSubtask(tasks[i]),
         onDelete: () => onDelete(tasks[i]),
+        onOpenPomodoro: () => PomodoroTimerSheet.show(
+          context,
+          taskTitle: tasks[i].title,
+        ),
       ),
     );
   }
@@ -493,6 +527,7 @@ class _TaskTile extends StatelessWidget {
   final Function(SubtaskModel) onEditSubtask;
   final VoidCallback onAddSubtask;
   final VoidCallback onDelete;
+  final VoidCallback onOpenPomodoro;
 
   const _TaskTile({
     required this.task,
@@ -502,6 +537,7 @@ class _TaskTile extends StatelessWidget {
     required this.onEditSubtask,
     required this.onAddSubtask,
     required this.onDelete,
+    required this.onOpenPomodoro,
   });
 
   @override
@@ -548,6 +584,12 @@ class _TaskTile extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.timer_outlined, size: 20, color: AppColors.primary),
+                      onPressed: onOpenPomodoro,
+                      tooltip: 'Timer Pomodoro',
+                      constraints: const BoxConstraints(),
+                    ),
                     IconButton(icon: const Icon(Icons.add_task, size: 20, color: AppColors.primary), onPressed: onAddSubtask, constraints: const BoxConstraints()),
                     IconButton(icon: Icon(Icons.edit_outlined, size: 20, color: AppColors.textSecondary), onPressed: onEdit, constraints: const BoxConstraints()),
                     IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent), onPressed: onDelete, constraints: const BoxConstraints()),
