@@ -8,11 +8,13 @@ import '../../core/constants/app_strings.dart';
 /// [showTagline] exibe a tagline abaixo do nome.
 class NeuroFluxLogo extends StatelessWidget {
   final double size;
+  final bool showName;
   final bool showTagline;
 
   const NeuroFluxLogo({
     super.key,
     this.size = 80,
+    this.showName = true,
     this.showTagline = true,
   });
 
@@ -22,11 +24,13 @@ class NeuroFluxLogo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _LogoIcon(size: size),
-        const SizedBox(height: 16),
-        _LogoName(),
+        if (showName) ...[
+          const SizedBox(height: 16),
+          const _LogoName(),
+        ],
         if (showTagline) ...[
           const SizedBox(height: 6),
-          _Tagline(),
+          const _Tagline(),
         ],
       ],
     );
@@ -195,6 +199,8 @@ class _BrainRibbonPainter extends CustomPainter {
 // ── Nome ──────────────────────────────────────────────────────
 
 class _LogoName extends StatelessWidget {
+  const _LogoName();
+
   @override
   Widget build(BuildContext context) {
     return RichText(
@@ -227,6 +233,8 @@ class _LogoName extends StatelessWidget {
 // ── Tagline ───────────────────────────────────────────────────
 
 class _Tagline extends StatelessWidget {
+  const _Tagline();
+
   @override
   Widget build(BuildContext context) {
     return Row(
