@@ -101,4 +101,10 @@ abstract final class AppStrings {
   static String adminBannedCount(int n) => 'Usuários banidos - $n';
   static const adminBanSuccess = 'Usuário banido com sucesso.';
   static const adminLoadError = 'Não foi possível carregar os dados.';
+  static const adminPromoteToAdmin = 'Promover a administrador';
+  static const adminPromoteTitle = 'Promover usuário?';
+  static String adminPromoteWarning(String nome) =>
+      '$nome terá acesso ao painel administrativo e poderá gerenciar usuários.';
+  static const adminPromoteConfirm = 'Sim, promover';
+  static const adminPromoteSuccess = 'Usuário promovido a administrador.';
 }

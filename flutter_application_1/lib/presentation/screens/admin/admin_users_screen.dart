@@ -4,6 +4,7 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_scope.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/services/admin_service.dart';
 import '../../../domain/models/task_model.dart';
@@ -130,6 +131,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     final active = _filter(_activeUsers);
     final banned = _filter(_bannedUsers);
 
@@ -160,16 +163,16 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: AppStrings.adminSearchHint,
-                  prefixIcon: const Icon(Icons.search, color: AppColors.textHint),
+                  prefixIcon: Icon(Icons.search, color: AppColors.textHint),
                   filled: true,
                   fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                 ),
               ),
@@ -244,7 +247,7 @@ class _UserSection extends StatelessWidget {
           Text(title, style: AppTextStyles.adminUserMeta),
           const SizedBox(height: AppSizes.md),
           if (children.isEmpty)
-            const Text('Nenhum usuário encontrado.',
+            Text('Nenhum usuário encontrado.',
                 style: AppTextStyles.adminUserMeta)
           else
             ...children,

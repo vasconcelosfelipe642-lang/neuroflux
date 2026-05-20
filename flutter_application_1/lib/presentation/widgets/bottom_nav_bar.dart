@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_scope.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
@@ -18,9 +19,11 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       height: AppSizes.bottomNavHeight,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
       ),

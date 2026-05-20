@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_scope.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_sizes.dart';
 
@@ -11,6 +12,8 @@ class WeeklyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final weekdayIndex = today.weekday - 1;
@@ -64,6 +67,8 @@ class _DayItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Column(
       children: [
         Container(

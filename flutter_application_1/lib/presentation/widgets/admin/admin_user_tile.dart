@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_scope.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/avatar_color.dart';
 import '../../../domain/models/user_model.dart';
@@ -25,6 +26,8 @@ class AdminUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     final avatarColor =
         isBanned ? AppColors.mutedText : AvatarColor.forInitials(user.initials);
 

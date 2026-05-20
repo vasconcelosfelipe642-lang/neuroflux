@@ -63,6 +63,21 @@ class AdminService {
     return UserTaskStatsModel(created: created, completed: completed);
   }
 
+  /// Promove usuário comum a administrador via PUT existente.
+  Future<UserModel> promoverParaAdmin(UserModel user) async {
+    try {
+      await _client.put('/usuarios/${user.id}', {'role': 'admin'});
+      return UserModel(
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        role: 'admin',
+      );
+    } on SocketException {
+      throw AppException.network();
+    }
+  }
+
   /// Banir = DELETE /usuarios/:id (admin) + cache local para UI de banidos.
   Future<void> banirUsuario(UserModel user) async {
     try {

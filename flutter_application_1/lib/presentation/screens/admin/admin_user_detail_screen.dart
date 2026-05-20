@@ -4,6 +4,8 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_scope.dart';
+import '../../../core/theme/theme_rebuild.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/avatar_color.dart';
 import '../../../core/utils/time_ago.dart';
@@ -110,33 +112,39 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AdminHeader(
-              admin: widget.admin,
-              onLogout: widget.onLogout,
-              showBack: true,
-              onBack: () => Navigator.pop(context),
+    ThemeScope.watch(context);
+
+    return ThemeRebuild(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AdminHeader(
+                  admin: widget.admin,
+                  onLogout: widget.onLogout,
+                  showBack: true,
+                  onBack: () => Navigator.pop(context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
+                  child: Text(
+                    AppStrings.adminManageUsers,
+                    style: AppTextStyles.adminScreenTitle,
+                  ),
+                ),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _buildContent(),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
-              child: Text(
-                AppStrings.adminManageUsers,
-                style: AppTextStyles.adminScreenTitle,
-              ),
-            ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildContent(),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -286,10 +294,12 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSizes.lg, horizontal: AppSizes.sm),
       decoration: BoxDecoration(
-        color: highlight ? AppColors.primaryLight : AppColors.surface,
+        color: highlight ? AppColors.primaryLightTint : AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         border: Border.all(color: AppColors.border),
       ),

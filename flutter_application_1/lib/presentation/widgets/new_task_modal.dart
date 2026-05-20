@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_scope.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
@@ -82,10 +83,11 @@ class _NewTaskModalState extends State<NewTaskModal> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppSizes.radiusXl),
@@ -236,12 +238,12 @@ class _SubtaskList extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: AppSizes.xs),
           child: Row(
             children: [
-              const Icon(Icons.drag_handle, size: 16, color: AppColors.textHint),
+              Icon(Icons.drag_handle, size: 16, color: AppColors.textHint),
               const SizedBox(width: AppSizes.sm),
               Expanded(
                 child: Text(
                   entry.value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textPrimary,
                   ),
@@ -249,7 +251,7 @@ class _SubtaskList extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => onRemove(entry.key),
-                child: const Icon(Icons.close, size: 16, color: AppColors.textHint),
+                child: Icon(Icons.close, size: 16, color: AppColors.textHint),
               ),
             ],
           ),

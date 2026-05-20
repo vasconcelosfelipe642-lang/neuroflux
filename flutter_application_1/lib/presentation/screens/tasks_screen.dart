@@ -2,6 +2,8 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_scope.dart';
+import '../../core/theme/theme_rebuild.dart';
 import '../../core/utils/day_confetti_session.dart';
 import '../../core/utils/task_sound_feedback.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -339,17 +341,21 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppHeader(user: widget.user, onLogout: widget.onLogout),
-                _Divider(),
-                Expanded(
+    ThemeScope.watch(context);
+
+    return ThemeRebuild(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppHeader(user: widget.user, onLogout: widget.onLogout),
+                    _Divider(),
+                    Expanded(
                   child: _isLoading
                       ? const SingleChildScrollView(
                           padding: EdgeInsets.all(AppSizes.pagePadding),
@@ -419,8 +425,10 @@ class _TasksScreenState extends State<TasksScreen> {
               ),
             ),
           ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -428,6 +436,8 @@ class _TasksScreenState extends State<TasksScreen> {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.fromLTRB(AppSizes.xl, 0, AppSizes.xl, AppSizes.md),
@@ -496,6 +506,8 @@ class _TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,

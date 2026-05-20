@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'core/theme/theme_scope.dart';
+import 'core/theme/theme_rebuild.dart';
 import 'data/services/auth_service.dart';
 import 'domain/models/user_model.dart';
 import 'domain/models/auth_form_model.dart';
@@ -15,7 +17,11 @@ import 'presentation/widgets/bottom_nav_bar.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ThemeProvider.instance.init();
-  runApp(const NeuroFluxApp());
+  runApp(
+    ThemeScope(
+      child: const NeuroFluxApp(),
+    ),
+  );
 }
 
 class NeuroFluxApp extends StatelessWidget {
@@ -23,30 +29,16 @@ class NeuroFluxApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: ThemeProvider.instance,
-      builder: (context, _) {
-        final themeProvider = ThemeProvider.instance;
-        return MaterialApp(
-          title: 'NeuroFlux',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: themeProvider.themeMode,
-          builder: (context, child) {
-            return ListenableBuilder(
-              listenable: themeProvider,
-              builder: (context, _) {
-                return ColoredBox(
-                  color: AppColors.background,
-                  child: child ?? const SizedBox.shrink(),
-                );
-              },
-            );
-          },
-          home: const AuthGate(),
-        );
-      },
+    ThemeScope.watch(context);
+    final themeProvider = ThemeProvider.instance;
+
+    return MaterialApp(
+      title: 'NeuroFlux',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeProvider.themeMode,
+      home: const AuthGate(),
     );
   }
 }
@@ -109,9 +101,12 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     if (_isRestoring) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -155,19 +150,25 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: IndexedStack(
-        index: _currentTab.index,
-        children: [
-          TasksScreen(user: widget.user, onLogout: widget.onLogout),
-          ProgressScreen(user: widget.user, onLogout: widget.onLogout),
-        ],
-      ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentTab: _currentTab,
-        onTabChanged: (tab) => setState(() => _currentTab = tab),
-      ),
+    return ThemeRebuild(
+      builder: (context) {
+        ThemeScope.watch(context);
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: IndexedStack(
+            index: _currentTab.index,
+            children: [
+              TasksScreen(user: widget.user, onLogout: widget.onLogout),
+              ProgressScreen(user: widget.user, onLogout: widget.onLogout),
+            ],
+          ),
+          bottomNavigationBar: AppBottomNavBar(
+            currentTab: _currentTab,
+            onTabChanged: (tab) => setState(() => _currentTab = tab),
+          ),
+        );
+      },
     );
   }
 }

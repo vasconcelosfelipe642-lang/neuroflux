@@ -4,6 +4,8 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_scope.dart';
+import '../../../core/theme/theme_rebuild.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/services/admin_service.dart';
 import '../../../domain/models/admin_stats_model.dart';
@@ -119,10 +121,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: _isLoading
+    ThemeScope.watch(context);
+
+    return ThemeRebuild(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
                 onRefresh: _load,
@@ -156,7 +162,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ],
                 ),
               ),
-      ),
+          ),
+        );
+      },
     );
   }
 

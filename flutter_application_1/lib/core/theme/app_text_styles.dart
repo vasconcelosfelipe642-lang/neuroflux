@@ -3,36 +3,31 @@ import 'app_colors.dart';
 
 abstract final class AppTextStyles {
   // ── Header ────────────────────────────────────────────────
-  static const greetingSmall = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get greetingSmall => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const greetingName = TextStyle(
-    fontSize: 18,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get greetingName => const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const dateLabel = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get dateLabel => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textSecondary);
 
   // ── Cards / Sections ──────────────────────────────────────
-  static const sectionTitle = TextStyle(
-    fontSize: 15,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get sectionTitle => const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const cardLabel = TextStyle(
-    fontSize: 13,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-  );
+  static TextStyle get cardLabel => const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+      ).copyWith(color: AppColors.textSecondary);
 
   static const progressPercent = TextStyle(
     fontSize: 13,
@@ -40,11 +35,10 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w700,
   );
 
-  static const progressSub = TextStyle(
-    fontSize: 12,
-    color: AppColors.textHint,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get progressSub => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textHint);
 
   static const bigPercent = TextStyle(
     fontSize: 48,
@@ -65,42 +59,36 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
 
-  static const statNumber = TextStyle(
-    fontSize: 28,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w800,
-  );
+  static TextStyle get statNumber => const TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w800,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const statLabel = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-  );
+  static TextStyle get statLabel => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const emptyTitle = TextStyle(
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-  );
+  static TextStyle get emptyTitle => const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const emptySubtitle = TextStyle(
-    fontSize: 12,
-    color: AppColors.textHint,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get emptySubtitle => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textHint);
 
   // ── Modal ─────────────────────────────────────────────────
-  static const modalTitle = TextStyle(
-    fontSize: 18,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get modalTitle => const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const fieldLabel = TextStyle(
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w600,
-  );
+  static TextStyle get fieldLabel => const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ).copyWith(color: AppColors.textPrimary);
 
   // ── Nav / Buttons ─────────────────────────────────────────
   static const navLabel = TextStyle(
@@ -116,26 +104,23 @@ abstract final class AppTextStyles {
   );
 
   // ── Auth ──────────────────────────────────────────────────
-  static const authTitle = TextStyle(
-    fontSize: 24,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w800,
-    height: 1.2,
-  );
+  static TextStyle get authTitle => const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        height: 1.2,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const authSubtitle = TextStyle(
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-    height: 1.4,
-  );
+  static TextStyle get authSubtitle => const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const authTagline = TextStyle(
-    fontSize: 11,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-    letterSpacing: 1.5,
-  );
+  static TextStyle get authTagline => const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 1.5,
+      ).copyWith(color: AppColors.textSecondary);
 
   static const authLink = TextStyle(
     fontSize: 14,
@@ -143,37 +128,32 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  static const authBodySmall = TextStyle(
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get authBodySmall => const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const authTerms = TextStyle(
-    fontSize: 11,
-    color: AppColors.textHint,
-    fontWeight: FontWeight.w400,
-    height: 1.5,
-  );
+  static TextStyle get authTerms => const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+      ).copyWith(color: AppColors.textHint);
 
   // ── Admin ─────────────────────────────────────────────────
-  static const adminPanelLabel = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get adminPanelLabel => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const adminTitle = TextStyle(
-    fontSize: 18,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get adminTitle => const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const adminScreenTitle = TextStyle(
-    fontSize: 22,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w800,
-  );
+  static TextStyle get adminScreenTitle => const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+      ).copyWith(color: AppColors.textPrimary);
 
   static const adminBadge = TextStyle(
     fontSize: 11,
@@ -181,31 +161,27 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w700,
   );
 
-  static const adminStatNumber = TextStyle(
-    fontSize: 26,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w800,
-    height: 1.1,
-  );
+  static TextStyle get adminStatNumber => const TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.w800,
+        height: 1.1,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const adminStatLabel = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-    height: 1.3,
-  );
+  static TextStyle get adminStatLabel => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+      ).copyWith(color: AppColors.textSecondary);
 
-  static const adminUserName = TextStyle(
-    fontSize: 15,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w700,
-  );
+  static TextStyle get adminUserName => const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const adminUserMeta = TextStyle(
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-  );
+  static TextStyle get adminUserMeta => const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ).copyWith(color: AppColors.textSecondary);
 
   static const adminLink = TextStyle(
     fontSize: 13,
@@ -219,18 +195,16 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  static const adminModalTitle = TextStyle(
-    fontSize: 20,
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w800,
-  );
+  static TextStyle get adminModalTitle => const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+      ).copyWith(color: AppColors.textPrimary);
 
-  static const adminModalBody = TextStyle(
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w400,
-    height: 1.45,
-  );
+  static TextStyle get adminModalBody => const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+      ).copyWith(color: AppColors.textSecondary);
 
   static const adminHighlightPercent = TextStyle(
     fontSize: 26,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/theme_scope.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
 
@@ -22,6 +23,8 @@ class ProgressBigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -32,7 +35,7 @@ class ProgressBigCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(),
+          const _CardHeader(),
           const SizedBox(height: AppSizes.sm),
           Text(_percentLabel, style: AppTextStyles.bigPercent),
           const SizedBox(height: AppSizes.xs),
@@ -49,6 +52,8 @@ class ProgressBigCard extends StatelessWidget {
 }
 
 class _CardHeader extends StatelessWidget {
+  const _CardHeader();
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -95,6 +100,8 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeScope.watch(context);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
