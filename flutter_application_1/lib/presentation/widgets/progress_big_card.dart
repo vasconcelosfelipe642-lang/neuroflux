@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
+import '../../core/constants/app_sizes.dart';
+import '../../core/constants/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/theme_scope.dart';
-import '../../core/constants/app_strings.dart';
-import '../../core/constants/app_sizes.dart';
+import 'progress_big_card_bar.dart';
+import 'progress_big_card_header.dart';
 
 class ProgressBigCard extends StatelessWidget {
   final int completedTasks;
@@ -35,7 +38,7 @@ class ProgressBigCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardHeader(),
+          const ProgressBigCardHeader(),
           const SizedBox(height: AppSizes.sm),
           Text(_percentLabel, style: AppTextStyles.bigPercent),
           const SizedBox(height: AppSizes.xs),
@@ -44,79 +47,7 @@ class ProgressBigCard extends StatelessWidget {
             style: AppTextStyles.bigCardSub,
           ),
           const SizedBox(height: AppSizes.md),
-          _ProgressBar(progress: _progress),
-        ],
-      ),
-    );
-  }
-}
-
-class _CardHeader extends StatelessWidget {
-  const _CardHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.track_changes_rounded, color: Colors.white, size: AppSizes.iconMd),
-        const SizedBox(width: AppSizes.sm),
-        Text(AppStrings.dayProgress, style: AppTextStyles.bigCardTitle),
-      ],
-    );
-  }
-}
-
-class _ProgressBar extends StatelessWidget {
-  final double progress;
-
-  const _ProgressBar({required this.progress});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-      child: LinearProgressIndicator(
-        value: progress,
-        minHeight: AppSizes.progressBarHeight,
-        backgroundColor: Colors.white30,
-        valueColor: const AlwaysStoppedAnimation(Colors.white60),
-      ),
-    );
-  }
-}
-
-/// Card de métrica genérico reutilizável
-class StatCard extends StatelessWidget {
-  final IconData icon;
-  final int count;
-  final String label;
-
-  const StatCard({
-    super.key,
-    required this.icon,
-    required this.count,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ThemeScope.watch(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: AppColors.border, width: 0.5),
-      ),
-      padding: const EdgeInsets.all(AppSizes.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: AppColors.primary, size: AppSizes.iconMd),
-          const SizedBox(height: AppSizes.sm),
-          Text('$count', style: AppTextStyles.statNumber),
-          const SizedBox(height: AppSizes.xs),
-          Text(label, style: AppTextStyles.statLabel),
+          ProgressBigCardBar(progress: _progress),
         ],
       ),
     );
