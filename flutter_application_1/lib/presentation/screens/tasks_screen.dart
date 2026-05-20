@@ -1,5 +1,9 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/day_confetti_session.dart';
+import '../../core/utils/task_sound_feedback.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_sizes.dart';
@@ -13,6 +17,8 @@ import '../widgets/app_header.dart';
 import '../widgets/day_progress_card.dart';
 import '../widgets/task_list_empty.dart';
 import '../widgets/new_task_modal.dart';
+import '../widgets/motivational_message.dart';
+import '../widgets/shimmer_task_card.dart';
 
 class TasksScreen extends StatefulWidget {
   final UserModel user;
@@ -27,24 +33,34 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   final _tarefaService = TarefaService.instance;
   final _subtarefaService = SubtarefaService.instance;
+  late final ConfettiController _confettiController;
 
   List<TaskModel> _tasks = [];
   bool _isLoading = true;
 
-  int get _completedCount => _tasks.where((t) => t.isCompleted).length;
-
   @override
   void initState() {
     super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 2));
     _loadTasks();
     _tarefaService.addListener(_loadTasks);
   }
 
   @override
   void dispose() {
+    _confettiController.dispose();
     _tarefaService.removeListener(_loadTasks);
     super.dispose();
   }
+
+  void _onDayCompleted() {
+    if (DayConfettiSession.tryShow()) {
+      _confettiController.play();
+    }
+  }
+
+  int get _completedCount => _tasks.where((t) => t.isCompleted).length;
 
   Future<void> _loadTasks() async {
     if (!mounted) return;
@@ -106,9 +122,15 @@ class _TasksScreenState extends State<TasksScreen> {
       return;
     }
 
+    final markingComplete = !task.isCompleted;
+
     setState(() {
       _tasks = _tasks.map((t) => t.id == task.id ? t.copyWith(isCompleted: !t.isCompleted) : t).toList();
     });
+
+    if (markingComplete) {
+      TaskSoundFeedback.instance.playComplete();
+    }
 
     try {
       final updated = await _tarefaService.alternarConcluida(task);
@@ -276,7 +298,7 @@ class _TasksScreenState extends State<TasksScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCELAR', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold, fontSize: 13)),
+            child: Text('CANCELAR', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold, fontSize: 13)),
           ),
           const SizedBox(width: AppSizes.sm),
           ElevatedButton(
@@ -318,31 +340,46 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppHeader(user: widget.user, onLogout: widget.onLogout),
-            _Divider(),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                  : RefreshIndicator(
-                      color: AppColors.primary,
-                      onRefresh: _loadTasks,
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(AppSizes.pagePadding),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DayProgressCard(completedTasks: _completedCount, totalTasks: _tasks.length),
-                            const SizedBox(height: AppSizes.lg),
-                            const Text(AppStrings.today, style: AppTextStyles.sectionTitle),
-                            const SizedBox(height: AppSizes.md),
-                            _tasks.isEmpty
-                                ? const TaskListEmpty()
-                                : _TaskList(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppHeader(user: widget.user, onLogout: widget.onLogout),
+                _Divider(),
+                Expanded(
+                  child: _isLoading
+                      ? const SingleChildScrollView(
+                          padding: EdgeInsets.all(AppSizes.pagePadding),
+                          child: ShimmerTaskList(),
+                        )
+                      : RefreshIndicator(
+                          color: AppColors.primary,
+                          onRefresh: _loadTasks,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(AppSizes.pagePadding),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                DayProgressCard(
+                                  completedTasks: _completedCount,
+                                  totalTasks: _tasks.length,
+                                  onDayCompleted: _onDayCompleted,
+                                ),
+                                const SizedBox(height: AppSizes.md),
+                                MotivationalMessage(
+                                  completedTasks: _completedCount,
+                                  totalTasks: _tasks.length,
+                                ),
+                                const SizedBox(height: AppSizes.lg),
+                                Text(AppStrings.today, style: AppTextStyles.sectionTitle),
+                                const SizedBox(height: AppSizes.md),
+                                _tasks.isEmpty
+                                    ? TaskListEmpty(onCreateTask: _openNewTaskModal)
+                                    : _TaskList(
                                     tasks: _tasks,
                                     onToggle: _toggleTask,
                                     onToggleSubtask: _toggleSubtask,
@@ -351,15 +388,38 @@ class _TasksScreenState extends State<TasksScreen> {
                                     onAddSubtask: _addSubtaskToExisting,
                                     onDelete: _deleteTask,
                                   ),
-                            const SizedBox(height: AppSizes.xl),
-                            _NewTaskButton(onPressed: _openNewTaskModal),
-                          ],
+                                const SizedBox(height: AppSizes.xl),
+                                _NewTaskButton(onPressed: _openNewTaskModal),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          IgnorePointer(
+            child: Align(
+              alignment: Alignment.center,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                numberOfParticles: 32,
+                maxBlastForce: 22,
+                minBlastForce: 8,
+                gravity: 0.1,
+                colors: const [
+                  Color(0xFFE8622A),
+                  Color(0xFFFFB347),
+                  Colors.white,
+                ],
+                createParticlePath: (_) => Path()
+                  ..addOval(Rect.fromCircle(center: Offset.zero, radius: 4)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -371,7 +431,7 @@ class _Divider extends StatelessWidget {
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.fromLTRB(AppSizes.xl, 0, AppSizes.xl, AppSizes.md),
-      child: const Divider(color: AppColors.border, height: 1),
+      child: Divider(color: AppColors.border, height: 1),
     );
   }
 }
@@ -440,8 +500,14 @@ class _TaskTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: AppColors.border.withOpacity(0.5), width: 1),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.5), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,7 +537,7 @@ class _TaskTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(icon: const Icon(Icons.add_task, size: 20, color: AppColors.primary), onPressed: onAddSubtask, constraints: const BoxConstraints()),
-                    IconButton(icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.textSecondary), onPressed: onEdit, constraints: const BoxConstraints()),
+                    IconButton(icon: Icon(Icons.edit_outlined, size: 20, color: AppColors.textSecondary), onPressed: onEdit, constraints: const BoxConstraints()),
                     IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent), onPressed: onDelete, constraints: const BoxConstraints()),
                   ],
                 ),
@@ -483,7 +549,20 @@ class _TaskTile extends StatelessWidget {
           const SizedBox(height: AppSizes.sm),
         ],
       ),
-    );
+    )
+        .animate(target: task.isCompleted ? 1 : 0)
+        .scale(
+          begin: const Offset(0.97, 0.97),
+          end: const Offset(1, 1),
+          duration: 300.ms,
+          curve: Curves.easeOutBack,
+        )
+        .fade(
+          begin: 0.88,
+          end: 1,
+          duration: 300.ms,
+          curve: Curves.easeOutBack,
+        );
   }
 }
 
@@ -507,7 +586,7 @@ class _SubtasksList extends StatelessWidget {
               InkWell(onTap: () => onToggleSubtask(s), child: Icon(s.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked, size: 18, color: s.isCompleted ? AppColors.primary : AppColors.textHint)),
               const SizedBox(width: AppSizes.sm),
               Expanded(child: InkWell(onTap: () => onToggleSubtask(s), child: Text(s.title, style: TextStyle(fontSize: 13, color: s.isCompleted ? AppColors.textSecondary : AppColors.textPrimary, decoration: s.isCompleted ? TextDecoration.lineThrough : null)))),
-              IconButton(icon: const Icon(Icons.edit, size: 16, color: AppColors.textHint), onPressed: () => onEditSubtask(s), constraints: const BoxConstraints(), padding: const EdgeInsets.all(4)),
+              IconButton(icon: Icon(Icons.edit, size: 16, color: AppColors.textHint), onPressed: () => onEditSubtask(s), constraints: const BoxConstraints(), padding: const EdgeInsets.all(4)),
             ],
           ),
         )).toList(),
@@ -516,12 +595,53 @@ class _SubtasksList extends StatelessWidget {
   }
 }
 
-class _NewTaskButton extends StatelessWidget {
+class _NewTaskButton extends StatefulWidget {
   final VoidCallback onPressed;
   const _NewTaskButton({required this.onPressed});
 
   @override
+  State<_NewTaskButton> createState() => _NewTaskButtonState();
+}
+
+class _NewTaskButtonState extends State<_NewTaskButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: const Text(AppStrings.newTask, style: AppTextStyles.fabLabel));
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.95 : 1,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: widget.onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              minimumSize: const Size(double.infinity, 52),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+            child: const Text(AppStrings.newTask, style: AppTextStyles.fabLabel),
+          ),
+        ),
+      ),
+    );
   }
 }
