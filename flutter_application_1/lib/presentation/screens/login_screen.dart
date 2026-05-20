@@ -189,21 +189,21 @@ class _SignUpPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: AppStrings.noAccount,
-              style: AppTextStyles.authBodySmall,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(AppStrings.noAccount, style: AppTextStyles.authBodySmall),
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            WidgetSpan(
-              child: GestureDetector(
-                onTap: onTap,
-                child: const Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
-              ),
-            ),
-          ],
-        ),
+            child: Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
+          ),
+        ],
       ),
     );
   }

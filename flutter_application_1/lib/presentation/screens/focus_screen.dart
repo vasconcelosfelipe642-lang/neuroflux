@@ -9,11 +9,14 @@ import '../../domain/models/task_model.dart';
 class FocusScreen extends StatefulWidget {
   final List<TaskModel> pendingTasks;
   final Future<void> Function(TaskModel task) onToggleTask;
+  final Future<TaskModel> Function(TaskModel task, SubtaskModel subtask)
+      onToggleSubtask;
 
   const FocusScreen({
     super.key,
     required this.pendingTasks,
     required this.onToggleTask,
+    required this.onToggleSubtask,
   });
 
   @override
@@ -22,10 +25,13 @@ class FocusScreen extends StatefulWidget {
 
 class _FocusScreenState extends State<FocusScreen> {
   static const _focusBackground = Color(0xFF1A1A2E);
+  static const _subtaskPanel = Color(0xFF252542);
+  static const _subtaskBorder = Color(0xFF3D3D5C);
 
   late List<TaskModel> _pending;
   int _currentIndex = 0;
   int _slideKey = 0;
+  bool _isBusy = false;
 
   @override
   void initState() {
@@ -40,22 +46,60 @@ class _FocusScreenState extends State<FocusScreen> {
 
   int get _total => widget.pendingTasks.length;
 
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFF3D3D5C),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(AppSizes.lg),
+      ),
+    );
+  }
+
+  Future<void> _toggleSubtask(SubtaskModel sub) async {
+    final task = _currentTask;
+    if (task == null || _isBusy) return;
+
+    setState(() => _isBusy = true);
+    try {
+      final updated = await widget.onToggleSubtask(task, sub);
+      if (!mounted) return;
+      HapticFeedback.lightImpact();
+      setState(() {
+        _pending[_currentIndex] = updated;
+      });
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
+    }
+  }
+
   Future<void> _completeAndAdvance() async {
     final task = _currentTask;
-    if (task == null) return;
+    if (task == null || _isBusy) return;
 
-    await widget.onToggleTask(task);
-    HapticFeedback.mediumImpact();
+    if (!task.canComplete) {
+      _showMessage('Marque todas as subtarefas antes de concluir a tarefa.');
+      return;
+    }
 
-    if (!mounted) return;
+    setState(() => _isBusy = true);
+    try {
+      await widget.onToggleTask(task);
+      HapticFeedback.mediumImpact();
 
-    setState(() {
-      _pending.removeAt(_currentIndex);
-      if (_currentIndex >= _pending.length && _pending.isNotEmpty) {
-        _currentIndex = 0;
-      }
-      _slideKey++;
-    });
+      if (!mounted) return;
+
+      setState(() {
+        _pending.removeAt(_currentIndex);
+        if (_currentIndex >= _pending.length && _pending.isNotEmpty) {
+          _currentIndex = 0;
+        }
+        _slideKey++;
+      });
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
+    }
   }
 
   @override
@@ -153,71 +197,192 @@ class _FocusScreenState extends State<FocusScreen> {
   }
 
   Widget _buildTaskFocus(TaskModel task, int slideKey) {
+    final canComplete = task.canComplete;
+    final hasSubtasks = task.hasSubtasks;
+
     return Column(
       key: ValueKey(slideKey),
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          task.title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            height: 1.3,
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(height: AppSizes.lg),
+                Text(
+                  task.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    height: 1.3,
+                  ),
+                )
+                    .animate()
+                    .fadeIn(duration: 350.ms)
+                    .slideX(
+                      begin: 0.08,
+                      end: 0,
+                      duration: 350.ms,
+                      curve: Curves.easeOutCubic,
+                    ),
+                if (hasSubtasks) ...[
+                  const SizedBox(height: AppSizes.xl),
+                  _buildSubtasksPanel(task),
+                ],
+              ],
+            ),
           ),
-        )
-            .animate()
-            .fadeIn(duration: 350.ms)
-            .slideX(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOutCubic),
-        if (task.hasSubtasks) ...[
-          const SizedBox(height: AppSizes.xl),
-          ...task.subtasks.map(_buildSubtaskRow),
-        ],
-        const SizedBox(height: AppSizes.xxl),
+        ),
+        if (hasSubtasks && !canComplete)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSizes.md),
+            child: Text(
+              'Conclua ${task.completedSubtasks} de ${task.subtasks.length} subtarefas para avançar',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFFFFB74D),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _completeAndAdvance,
+            onPressed: (_isBusy || !canComplete) ? null : _completeAndAdvance,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
               minimumSize: const Size(double.infinity, 52),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusFull),
               ),
             ),
-            child: const Text(
-              'Concluir e avançar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            child: _isBusy
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    hasSubtasks ? 'Concluir tarefa e avançar' : 'Concluir e avançar',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSubtaskRow(SubtaskModel sub) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
+  Widget _buildSubtasksPanel(TaskModel task) {
+    final done = task.completedSubtasks;
+    final total = task.subtasks.length;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSizes.lg),
+      decoration: BoxDecoration(
+        color: _subtaskPanel,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        border: Border.all(color: _subtaskBorder, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            sub.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: sub.isCompleted ? AppColors.primary : Colors.white38,
-            size: 20,
-          ),
-          const SizedBox(width: AppSizes.sm),
-          Expanded(
-            child: Text(
-              sub.title,
-              style: TextStyle(
-                fontSize: 15,
-                color: sub.isCompleted ? Colors.white54 : Colors.white,
-                decoration: sub.isCompleted ? TextDecoration.lineThrough : null,
+          Row(
+            children: [
+              const Icon(Icons.checklist_rounded, color: AppColors.primary, size: 22),
+              const SizedBox(width: AppSizes.sm),
+              const Text(
+                'Subtarefas',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
+              const Spacer(),
+              Text(
+                '$done de $total',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSizes.sm),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : done / total,
+              minHeight: 4,
+              backgroundColor: Colors.white12,
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
             ),
           ),
+          const SizedBox(height: AppSizes.md),
+          ...task.subtasks.map(_buildSubtaskTile),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSubtaskTile(SubtaskModel sub) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isBusy ? null : () => _toggleSubtask(sub),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSizes.sm, horizontal: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 28,
+                height: 28,
+                child: Checkbox(
+                  value: sub.isCompleted,
+                  onChanged: _isBusy ? null : (_) => _toggleSubtask(sub),
+                  activeColor: AppColors.primary,
+                  checkColor: Colors.white,
+                  side: const BorderSide(color: Color(0xFF8A8AA8), width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSizes.sm),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    sub.title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                      color: sub.isCompleted
+                          ? const Color(0xFF9A9AB0)
+                          : Colors.white,
+                      decoration: sub.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: const Color(0xFF9A9AB0),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

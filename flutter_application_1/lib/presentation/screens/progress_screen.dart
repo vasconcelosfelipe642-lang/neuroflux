@@ -16,7 +16,7 @@ import '../widgets/weekly_view.dart';
 
 class ProgressScreen extends StatefulWidget {
   final UserModel user;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   const ProgressScreen({super.key, required this.user, required this.onLogout});
 

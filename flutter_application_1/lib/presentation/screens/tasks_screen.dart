@@ -27,7 +27,7 @@ import 'focus_screen.dart';
 
 class TasksScreen extends StatefulWidget {
   final UserModel user;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   const TasksScreen({super.key, required this.user, required this.onLogout});
 
@@ -352,6 +352,10 @@ class _TasksScreenState extends State<TasksScreen> {
         builder: (_) => FocusScreen(
           pendingTasks: _pendingTasks,
           onToggleTask: _toggleTask,
+          onToggleSubtask: (task, sub) async {
+            await _toggleSubtask(task, sub);
+            return _tasks.firstWhere((t) => t.id == task.id);
+          },
         ),
       ),
     );

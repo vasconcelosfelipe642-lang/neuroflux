@@ -18,7 +18,7 @@ class AppHeader extends StatelessWidget {
 
   final UserModel user;
 
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   final VoidCallback? onOpenFocus;
 
@@ -106,11 +106,11 @@ class AppHeader extends StatelessWidget {
 
               ListTile(
 
-                onTap: () {
+                onTap: () async {
 
                   Navigator.pop(modalContext);
 
-                  onLogout();
+                  await onLogout();
 
                 },
 

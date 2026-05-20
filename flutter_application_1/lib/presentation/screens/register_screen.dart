@@ -253,21 +253,21 @@ class _LoginPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: AppStrings.hasAccount,
-              style: AppTextStyles.authBodySmall,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(AppStrings.hasAccount, style: AppTextStyles.authBodySmall),
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            WidgetSpan(
-              child: GestureDetector(
-                onTap: onTap,
-                child: Text(AppStrings.loginLink, style: AppTextStyles.authLink),
-              ),
-            ),
-          ],
-        ),
+            child: Text(AppStrings.loginLink, style: AppTextStyles.authLink),
+          ),
+        ],
       ),
     );
   }

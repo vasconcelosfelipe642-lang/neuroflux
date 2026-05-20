@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/navigation/app_transitions.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_scope.dart';
 import '../../data/services/auth_service.dart';
@@ -11,6 +10,7 @@ import 'home_shell.dart';
 import 'admin/admin_dashboard_screen.dart';
 
 /// Controla se exibe auth ou home com base no estado do token.
+/// Mantém-se montado na árvore para que logout e troca login/cadastro funcionem.
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
@@ -21,6 +21,8 @@ class AuthGate extends StatefulWidget {
 class _AuthGateState extends State<AuthGate> {
   final _authService = AuthService.instance;
   bool _isRestoring = true;
+  UserModel? _user;
+  bool _showRegister = false;
 
   @override
   void initState() {
@@ -31,22 +33,10 @@ class _AuthGateState extends State<AuthGate> {
   Future<void> _restoreSession() async {
     final user = await _authService.restoreSession();
     if (!mounted) return;
-    if (user != null) {
-      _navigateToHome(user);
-      return;
-    }
-    setState(() => _isRestoring = false);
-  }
-
-  void _navigateToHome(UserModel user) {
-    final screen = user.isAdmin
-        ? AdminDashboardScreen(
-            admin: user,
-            onLogout: _onLogout,
-          )
-        : HomeShell(user: user, onLogout: () => _onLogout());
-
-    Navigator.of(context).pushReplacement(SlidePageRoute(child: screen));
+    setState(() {
+      _user = user;
+      _isRestoring = false;
+    });
   }
 
   Future<void> _onLogin(LoginFormModel form) async {
@@ -55,7 +45,10 @@ class _AuthGateState extends State<AuthGate> {
       password: form.password,
     );
     if (!mounted) return;
-    _navigateToHome(user);
+    setState(() {
+      _user = user;
+      _showRegister = false;
+    });
   }
 
   Future<void> _onRegister(RegisterFormModel form) async {
@@ -65,38 +58,24 @@ class _AuthGateState extends State<AuthGate> {
       password: form.password,
     );
     if (!mounted) return;
-    _navigateToHome(user);
+    setState(() {
+      _user = user;
+      _showRegister = false;
+    });
   }
 
   Future<void> _onLogout() async {
     await _authService.logout();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      FadePageRoute(child: const AuthGate()),
-    );
+    setState(() {
+      _user = null;
+      _showRegister = false;
+    });
   }
 
-  void _goToRegister() {
-    Navigator.of(context).pushReplacement(
-      SlidePageRoute(
-        child: RegisterScreen(
-          onRegister: _onRegister,
-          onNavigateToLogin: _goToLogin,
-        ),
-      ),
-    );
-  }
+  void _goToRegister() => setState(() => _showRegister = true);
 
-  void _goToLogin() {
-    Navigator.of(context).pushReplacement(
-      SlidePageRoute(
-        child: LoginScreen(
-          onLogin: _onLogin,
-          onNavigateToRegister: _goToRegister,
-        ),
-      ),
-    );
-  }
+  void _goToLogin() => setState(() => _showRegister = false);
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +88,56 @@ class _AuthGateState extends State<AuthGate> {
       );
     }
 
-    return LoginScreen(
-      onLogin: _onLogin,
-      onNavigateToRegister: _goToRegister,
+    if (_user != null) {
+      final user = _user!;
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        transitionBuilder: (child, animation) {
+          final offset = Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: Curves.easeOutCubic));
+          return SlideTransition(
+            position: animation.drive(offset),
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        child: user.isAdmin
+            ? AdminDashboardScreen(
+                key: const ValueKey('admin'),
+                admin: user,
+                onLogout: _onLogout,
+              )
+            : HomeShell(
+                key: const ValueKey('home'),
+                user: user,
+                onLogout: _onLogout,
+              ),
+      );
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 350),
+      transitionBuilder: (child, animation) {
+        final begin = _showRegister ? const Offset(1, 0) : const Offset(-1, 0);
+        final offset = Tween<Offset>(begin: begin, end: Offset.zero)
+            .chain(CurveTween(curve: Curves.easeOutCubic));
+        return SlideTransition(
+          position: animation.drive(offset),
+          child: child,
+        );
+      },
+      child: _showRegister
+          ? RegisterScreen(
+              key: const ValueKey('register'),
+              onRegister: _onRegister,
+              onNavigateToLogin: _goToLogin,
+            )
+          : LoginScreen(
+              key: const ValueKey('login'),
+              onLogin: _onLogin,
+              onNavigateToRegister: _goToRegister,
+            ),
     );
   }
 }
