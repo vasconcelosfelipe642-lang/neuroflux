@@ -77,7 +77,8 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 | [Flutter](https://flutter.dev/) (Dart 3+) | Interface multiplataforma |
 | [Material Design](https://m3.material.io/) | Componentes e tema visual |
 | [http](https://pub.dev/packages/http) | Cliente HTTP para a API REST |
-| [shared_preferences](https://pub.dev/packages/shared_preferences) | Token JWT, onboarding concluído e cache de usuários banidos |
+| [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) | Token JWT (armazenamento seguro) |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | Tema, onboarding concluído e cache local de usuários banidos |
 | [flutter_animate](https://pub.dev/packages/flutter_animate) | Animações (splash, onboarding, modo foco, tarefas) |
 | [confetti](https://pub.dev/packages/confetti) | Celebração ao atingir 100% do progresso do dia |
 | [audioplayers](https://pub.dev/packages/audioplayers) | Som opcional ao concluir tarefa |
@@ -85,10 +86,12 @@ A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autentica
 
 **Organização do código (camadas):**
 
-- `lib/core/` — tema (`ThemeProvider`), constantes, navegação (`app_transitions.dart`), exceções e utilitários
+- `lib/core/` — tema (`ThemeProvider`), constantes, navegação (`fade_page_route.dart`, `slide_page_route.dart`), exceções e utilitários
 - `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — modelos de domínio
 - `lib/presentation/` — telas (`splash`, `onboarding`, `auth_gate`, `focus`, `home_shell`, etc.) e widgets reutilizáveis
+
+**Convenção de arquivos:** cada `.dart` em `lib/` contém **uma única** classe ou enum pública. Estados de `StatefulWidget` e widgets auxiliares ficam em arquivos dedicados (ex.: `login_screen.dart` + `login_screen_state.dart`).
 
 ### Backend — `backend/`
 
@@ -476,7 +479,7 @@ Com `role: admin`, a API retorna **todas as tarefas** em `GET /tarefas`, permiti
 | Token inválido após 1 h | Expiração JWT | Faça login novamente (`expiresIn: '1h'`) |
 | Painel admin não aparece | Token antigo sem `role` atualizado | Logout + login após `UPDATE` no MySQL |
 | `403` ao banir usuário | Usuário logado não é admin | Confirme `role = 'admin'` no banco e refaça o login |
-| App pede login a cada abertura | Token não persistido | Rode `flutter pub get`; confirme dependência `shared_preferences` |
+| App pede login a cada abertura | Token não persistido | Rode `flutter pub get`; confirme dependência `flutter_secure_storage` |
 
 ---
 
