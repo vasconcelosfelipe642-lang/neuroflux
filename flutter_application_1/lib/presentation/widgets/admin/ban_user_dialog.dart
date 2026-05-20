@@ -49,7 +49,7 @@ class BanUserDialog extends StatelessWidget {
             Container(
               width: 56,
               height: 56,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.dangerLight,
                 shape: BoxShape.circle,
               ),
