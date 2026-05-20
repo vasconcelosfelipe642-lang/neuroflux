@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-// import 'package:lottie/lottie.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/theme_scope.dart';
-import '../../core/theme/app_text_styles.dart';
+
 import '../../core/constants/app_sizes.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/theme_scope.dart';
+import 'task_list_empty_illustration.dart';
 
 class TaskListEmpty extends StatelessWidget {
   final VoidCallback onCreateTask;
@@ -29,7 +30,7 @@ class TaskListEmpty extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _EmptyIllustration(),
+          const TaskListEmptyIllustration(),
           const SizedBox(height: AppSizes.lg),
           Text(
             'Nenhuma tarefa ainda',
@@ -61,37 +62,6 @@ class TaskListEmpty extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyIllustration extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Quando assets/animations/empty_state.json existir, use:
-    // return Lottie.asset(
-    //   'assets/animations/empty_state.json',
-    //   width: 140,
-    //   height: 140,
-    //   fit: BoxFit.contain,
-    //   errorBuilder: (_, __, ___) => _fallbackIcon(),
-    // );
-    return _fallbackIcon();
-  }
-
-  Widget _fallbackIcon() {
-    return Container(
-      width: 88,
-      height: 88,
-      decoration: BoxDecoration(
-        color: AppColors.primaryLightTint,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.checklist_rounded,
-        size: 44,
-        color: AppColors.primary,
       ),
     );
   }
