@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_sizes.dart';
-import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/theme_scope.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/theme/theme_scope.dart';
 import '../../../core/utils/avatar_color.dart';
 import '../../../domain/models/user_model.dart';
+import 'admin_ban_button.dart';
+import 'admin_banned_chip.dart';
+import 'admin_user_tile_avatar.dart';
 
 class AdminUserTile extends StatelessWidget {
   final UserModel user;
@@ -40,7 +42,7 @@ class AdminUserTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: AppSizes.sm),
           child: Row(
             children: [
-              _UserAvatar(
+              AdminUserTileAvatar(
                 initials: user.initials,
                 color: avatarColor,
                 muted: isBanned,
@@ -64,80 +66,13 @@ class AdminUserTile extends StatelessWidget {
                 ),
               ),
               if (isBanned)
-                _BannedChip()
+                const AdminBannedChip()
               else if (onBan != null)
-                _BanButton(onTap: onBan!),
+                AdminBanButton(onTap: onBan!),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _UserAvatar extends StatelessWidget {
-  final String initials;
-  final Color color;
-  final bool muted;
-
-  const _UserAvatar({
-    required this.initials,
-    required this.color,
-    required this.muted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: muted ? AppColors.muted : color,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initials,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: AppColors.avatarForeground,
-        ),
-      ),
-    );
-  }
-}
-
-class _BanButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _BanButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.dangerLight,
-          borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-        ),
-        child: Text(AppStrings.adminBan, style: AppTextStyles.adminDangerButton),
-      ),
-    );
-  }
-}
-
-class _BannedChip extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.muted,
-        borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-      ),
-      child: Text(AppStrings.adminBanned, style: AppTextStyles.adminStatusBanned),
     );
   }
 }
