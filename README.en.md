@@ -77,7 +77,8 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 | [Flutter](https://flutter.dev/) (Dart 3+) | Cross-platform UI |
 | [Material Design](https://m3.material.io/) | Components and visual theme |
 | [http](https://pub.dev/packages/http) | HTTP client for the REST API |
-| [shared_preferences](https://pub.dev/packages/shared_preferences) | JWT, onboarding flag, and banned-users cache |
+| [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) | JWT token (secure storage) |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | Theme, onboarding flag, and local banned-users cache |
 | [flutter_animate](https://pub.dev/packages/flutter_animate) | Animations (splash, onboarding, focus mode, tasks) |
 | [confetti](https://pub.dev/packages/confetti) | Celebration at 100% daily progress |
 | [audioplayers](https://pub.dev/packages/audioplayers) | Optional sound on task completion |
@@ -85,10 +86,12 @@ Communication between the app and the server uses **HTTP/JSON**, with **JWT** au
 
 **Code organization (layers):**
 
-- `lib/core/` — theme (`ThemeProvider`), constants, navigation (`app_transitions.dart`), exceptions, utilities
+- `lib/core/` — theme (`ThemeProvider`), constants, navigation (`fade_page_route.dart`, `slide_page_route.dart`), exceptions, utilities
 - `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
 - `lib/domain/models/` — domain models
 - `lib/presentation/` — screens (`splash`, `onboarding`, `auth_gate`, `focus`, `home_shell`, etc.) and reusable widgets
+
+**File convention:** each `.dart` file under `lib/` contains **exactly one** public class or enum. `StatefulWidget` state classes and helper widgets live in dedicated files (e.g. `login_screen.dart` + `login_screen_state.dart`).
 
 ### Backend — `backend/`
 
@@ -476,7 +479,7 @@ With `role: admin`, `GET /tarefas` returns **all tasks**, enabling per-user stat
 | Invalid token after 1 h | JWT expiration | Log in again (`expiresIn: '1h'`) |
 | Admin panel does not show | Stale JWT without updated `role` | Log out and log in after MySQL `UPDATE` |
 | `403` when banning | Logged-in user is not admin | Confirm `role = 'admin'` in DB and re-login |
-| Login required every launch | Token not persisted | Run `flutter pub get`; confirm `shared_preferences` dependency |
+| Login required every launch | Token not persisted | Run `flutter pub get`; confirm `flutter_secure_storage` dependency |
 
 ---
 
