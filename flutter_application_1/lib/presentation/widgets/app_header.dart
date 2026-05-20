@@ -10,6 +10,7 @@ import '../../domain/models/user_model.dart';
 
 import '../../core/theme/theme_scope.dart';
 
+import 'app_header_avatar.dart';
 import 'theme_toggle_button.dart';
 
 
@@ -180,7 +181,7 @@ class AppHeader extends StatelessWidget {
 
             onTap: () => _showProfileModal(context),
 
-            child: _Avatar(initials: user.initials, color: user.avatarColor),
+            child: AppHeaderAvatar(initials: user.initials, color: user.avatarColor),
 
           ),
 
@@ -229,62 +230,6 @@ class AppHeader extends StatelessWidget {
           const ThemeToggleButton(),
 
         ],
-
-      ),
-
-    );
-
-  }
-
-}
-
-
-
-class _Avatar extends StatelessWidget {
-
-  final String initials;
-
-  final Color color;
-
-
-
-  const _Avatar({required this.initials, required this.color});
-
-
-
-  @override
-
-  Widget build(BuildContext context) {
-
-    return Container(
-
-      width: AppSizes.avatarSize,
-
-      height: AppSizes.avatarSize,
-
-      decoration: BoxDecoration(
-
-        color: color,
-
-        shape: BoxShape.circle,
-
-      ),
-
-      alignment: Alignment.center,
-
-      child: Text(
-
-        initials,
-
-        style: const TextStyle(
-
-          fontSize: 14,
-
-          fontWeight: FontWeight.w700,
-
-          color: AppColors.avatarForeground,
-
-        ),
 
       ),
 
