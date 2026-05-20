@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'data/services/auth_service.dart';
 import 'domain/models/user_model.dart';
 import 'domain/models/auth_form_model.dart';
@@ -10,8 +12,9 @@ import 'presentation/screens/progress_screen.dart';
 import 'presentation/screens/admin/admin_dashboard_screen.dart';
 import 'presentation/widgets/bottom_nav_bar.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ThemeProvider.instance.init();
   runApp(const NeuroFluxApp());
 }
 
@@ -20,11 +23,30 @@ class NeuroFluxApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NeuroFlux',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const AuthGate(),
+    return ListenableBuilder(
+      listenable: ThemeProvider.instance,
+      builder: (context, _) {
+        final themeProvider = ThemeProvider.instance;
+        return MaterialApp(
+          title: 'NeuroFlux',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: themeProvider.themeMode,
+          builder: (context, child) {
+            return ListenableBuilder(
+              listenable: themeProvider,
+              builder: (context, _) {
+                return ColoredBox(
+                  color: AppColors.background,
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
+            );
+          },
+          home: const AuthGate(),
+        );
+      },
     );
   }
 }
@@ -134,6 +156,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: IndexedStack(
         index: _currentTab.index,
         children: [
