@@ -4,9 +4,11 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../domain/models/user_model.dart';
 import '../../../core/theme/theme_scope.dart';
+import '../../../domain/models/user_model.dart';
 import '../theme_toggle_button.dart';
+import 'admin_header_avatar.dart';
+import 'admin_header_badge.dart';
 
 class AdminHeader extends StatelessWidget {
   final UserModel admin;
@@ -106,7 +108,7 @@ class AdminHeader extends StatelessWidget {
           ],
           GestureDetector(
             onTap: () => _showProfileModal(context),
-            child: _AdminAvatar(initials: admin.initials),
+            child: AdminHeaderAvatar(initials: admin.initials),
           ),
           const SizedBox(width: AppSizes.md),
           Expanded(
@@ -125,52 +127,9 @@ class AdminHeader extends StatelessWidget {
           ),
           const ThemeToggleButton(),
           const SizedBox(width: AppSizes.sm),
-          _AdminBadge(label: AppStrings.adminBadge),
+          const AdminHeaderBadge(label: AppStrings.adminBadge),
         ],
       ),
-    );
-  }
-}
-
-class _AdminAvatar extends StatelessWidget {
-  final String initials;
-  const _AdminAvatar({required this.initials});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: AppSizes.avatarSize,
-      height: AppSizes.avatarSize,
-      decoration: const BoxDecoration(
-        color: AppColors.avatarBackground,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initials,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: AppColors.avatarForeground,
-        ),
-      ),
-    );
-  }
-}
-
-class _AdminBadge extends StatelessWidget {
-  final String label;
-  const _AdminBadge({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-      ),
-      child: Text(label, style: AppTextStyles.adminBadge),
     );
   }
 }
