@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/constants/app_sizes.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/theme/theme_scope.dart';
@@ -28,6 +29,15 @@ class NeuroFluxApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeProvider.themeMode,
+      builder: (context, child) {
+        final systemScale = MediaQuery.textScalerOf(context).scale(1);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(systemScale * AppSizes.fontScale),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: const SplashScreen(),
     );
   }

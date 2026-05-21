@@ -1,4 +1,7 @@
 abstract final class AppSizes {
+  /// Escala global da tipografia (1.0 = padrão; 1.1 ≈ +10%).
+  static const double fontScale = 1.1;
+
   // Spacing
   static const double xs = 4;
   static const double sm = 8;
