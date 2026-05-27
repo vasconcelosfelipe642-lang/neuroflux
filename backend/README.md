@@ -539,6 +539,9 @@ Projeto acadêmico — consulte os autores da disciplina/instituição para term
 
 ## Integrantes
 
+**Equipe:** Neurotrix  
+**Aplicativo:** NeuroFlux
+
 | Nome | Matrícula |
 |------|-----------|
 | Felipe Gabriel dos Santos Vasconcelos | 16036165 |
