@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": "sua_senha_mysql",
+    "database": "neuroflux",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "sua_senha_mysql",
+    "database": "neuroflux_test",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "usuario_producao",
+    "password": "senha_producao",
+    "database": "neuroflux_production",
+    "host": "host_producao",
+    "port": 3306,
+    "dialect": "mysql"
+  }
+}
