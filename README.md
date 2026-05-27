@@ -1,161 +1,218 @@
-# NeuroFlux Backend
+# NeuroFlux
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![Sequelize](https://img.shields.io/badge/Sequelize-6.x-52B0E7?logo=sequelize&logoColor=white)](https://sequelize.org/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-Academic-blue)](#licença)
 
-API REST do **NeuroFlux**, responsável pela autenticação, gerenciamento de usuários, tarefas e subtarefas do aplicativo.
+**Português** · [English](README.en.md)
 
 **Pequenas etapas, grandes conquistas.**
 
-> Backend acadêmico desenvolvido em **Node.js + Express**, com persistência em **MySQL**, ORM **Sequelize** e autenticação via **JWT**.
+Aplicativo de produtividade voltado a pessoas neurodivergentes — com foco em **TDAH** — para organização de tarefas e redução da **sobrecarga executiva**. O projeto divide objetivos em etapas menores (tarefas e subtarefas), exibe progresso visual do dia e oferece uma interface pensada para diminuir fricção cognitiva.
+
+> Projeto acadêmico desenvolvido como solução full stack: cliente **Flutter** (multiplataforma) e API **REST** em **Node.js**, com persistência em **MySQL** local.
 
 ---
 
 ## Sumário
 
-- [Sobre o backend](#sobre-o-backend)
+- [Sobre o projeto](#sobre-o-projeto)
+- [Funcionalidades](#funcionalidades)
 - [Tecnologias](#tecnologias)
-- [Estrutura de pastas](#estrutura-de-pastas)
-- [Passo a passo para usar o backend](#passo-a-passo-para-usar-o-backend)
-- [Arquivos de configuração](#arquivos-de-configuração)
-- [Banco de dados](#banco-de-dados)
-- [Executando o servidor](#executando-o-servidor)
+- [Arquitetura](#arquitetura)
+- [Estrutura do repositório](#estrutura-do-repositório)
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração do ambiente](#configuração-do-ambiente)
+- [Banco de dados local (MySQL)](#banco-de-dados-local-mysql)
+- [Executando a API](#executando-a-api)
+- [Executando o app Flutter](#executando-o-app-flutter)
 - [Endpoints da API](#endpoints-da-api)
-- [Autenticação e permissões](#autenticação-e-permissões)
-- [Exemplos de requisições](#exemplos-de-requisições)
+- [Fluxo de uso do aplicativo](#fluxo-de-uso-do-aplicativo)
+- [Painel administrativo](#painel-administrativo)
 - [Solução de problemas](#solução-de-problemas)
-- [Contexto acadêmico](#contexto-acadêmico)
 - [Licença](#licença)
 
 ---
 
-## Sobre o backend
+## Sobre o projeto
 
-O backend do **NeuroFlux** é a camada responsável por processar as regras principais da aplicação e fornecer dados ao cliente Flutter por meio de uma API REST.
+O **NeuroFlux** nasce da necessidade de ferramentas de organização que respeitem o funcionamento cognitivo de pessoas com TDAH e outras neurodivergências. Em vez de listas genéricas, o app prioriza:
 
-Ele centraliza:
+- **Quebra de tarefas** em subtarefas opcionais, facilitando o início de atividades (“chunking”).
+- **Feedback visual de progresso** (tarefas concluídas vs. pendentes).
+- **Fluxo simples** de cadastro, login e gestão do dia.
 
-- Cadastro e login de usuários;
-- Geração e validação de tokens JWT;
-- Controle de permissões por perfil;
-- Gerenciamento de usuários;
-- CRUD de tarefas;
-- CRUD de subtarefas;
-- Associação entre usuários, tarefas e subtarefas;
-- Persistência dos dados em banco MySQL.
+A comunicação entre o app e o servidor ocorre via **HTTP/JSON**, com autenticação **JWT** (Bearer token) nas rotas protegidas.
 
-A comunicação com o frontend acontece via **HTTP/JSON**. Rotas protegidas exigem o envio do token no header:
+---
 
-```http
-Authorization: Bearer <token>
-```
+## Funcionalidades
+
+| Área | Descrição |
+|------|-----------|
+| **Splash e onboarding** | Tela de abertura animada; tour de 3 páginas na primeira execução (flag em `shared_preferences`) |
+| **Autenticação** | Cadastro, login, sessão JWT e transições animadas entre telas |
+| **Tarefas e subtarefas** | CRUD completo; tarefa só conclui quando todas as subtarefas estiverem feitas |
+| **Modo Foco** | Uma tarefa por vez, fundo imersivo, subtarefas clicáveis e barra de progresso |
+| **Timer Pomodoro** | 10, 15 ou 25 min por tarefa (100% local, sem API) |
+| **Progresso** | Aba dedicada, card do dia, frase motivacional e visão semanal |
+| **Tema claro/escuro** | Alternância no header com persistência local |
+| **Feedback sensorial** | Haptic em ações-chave; confetti ao completar 100% do dia; som opcional ao concluir tarefa |
+| **Avatar dinâmico** | Cor do avatar derivada do nome do usuário |
+| **Painel administrativo** | Visão geral, usuários, estatísticas, promover admin e banir (`role: admin`) |
+| **Sessão persistente** | Token JWT salvo localmente — login mantido após fechar o app |
 
 ---
 
 ## Tecnologias
 
+### Frontend — `flutter_application_1/`
+
 | Tecnologia | Uso |
-|-----------|-----|
-| [Node.js](https://nodejs.org/) | Runtime JavaScript do servidor |
-| [Express](https://expressjs.com/) | Framework para criação da API REST |
-| [Sequelize](https://sequelize.org/) | ORM para comunicação com o banco |
-| [MySQL](https://www.mysql.com/) | Banco de dados relacional |
-| [mysql2](https://www.npmjs.com/package/mysql2) | Driver MySQL para Node.js |
-| [bcrypt](https://www.npmjs.com/package/bcrypt) | Comparação de senha no login |
+|------------|-----|
+| [Flutter](https://flutter.dev/) (Dart 3+) | Interface multiplataforma |
+| [Material Design](https://m3.material.io/) | Componentes e tema visual |
+| [http](https://pub.dev/packages/http) | Cliente HTTP para a API REST |
+| [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) | Token JWT (armazenamento seguro) |
+| [shared_preferences](https://pub.dev/packages/shared_preferences) | Tema, onboarding concluído e cache local de usuários banidos |
+| [flutter_animate](https://pub.dev/packages/flutter_animate) | Animações (splash, onboarding, modo foco, tarefas) |
+| [confetti](https://pub.dev/packages/confetti) | Celebração ao atingir 100% do progresso do dia |
+| [audioplayers](https://pub.dev/packages/audioplayers) | Som opcional ao concluir tarefa |
+| [lottie](https://pub.dev/packages/lottie) | Animações em assets |
+
+**Organização do código (camadas):**
+
+- `lib/core/` — tema (`ThemeProvider`), constantes, navegação (`fade_page_route.dart`, `slide_page_route.dart`), exceções e utilitários
+- `lib/data/services/` — `ApiClient`, `AuthService`, `TarefaService`, `SubtarefaService`, `AdminService`, `TokenStorageService`
+- `lib/domain/models/` — modelos de domínio
+- `lib/presentation/` — telas (`splash`, `onboarding`, `auth_gate`, `focus`, `home_shell`, etc.) e widgets reutilizáveis
+
+**Convenção de arquivos:** cada `.dart` em `lib/` contém **uma única** classe ou enum pública. Estados de `StatefulWidget` e widgets auxiliares ficam em arquivos dedicados (ex.: `login_screen.dart` + `login_screen_state.dart`).
+
+### Backend — `backend/`
+
+| Tecnologia | Uso |
+|------------|-----|
+| [Node.js](https://nodejs.org/) | Runtime do servidor |
+| [Express](https://expressjs.com/) 5.x | API REST |
+| [Sequelize](https://sequelize.org/) | ORM e migrations |
+| [MySQL](https://www.mysql.com/) | Banco de dados relacional local |
 | [bcryptjs](https://www.npmjs.com/package/bcryptjs) | Hash de senhas |
-| [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) | Geração e validação de JWT |
+| [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) | Autenticação JWT |
 | [dotenv](https://www.npmjs.com/package/dotenv) | Variáveis de ambiente |
-| [cors](https://www.npmjs.com/package/cors) | Liberação de acesso para o frontend |
-| [sequelize-cli](https://www.npmjs.com/package/sequelize-cli) | Execução de migrations |
+| [cors](https://www.npmjs.com/package/cors) | CORS para o cliente Flutter |
+
+### Ferramentas de desenvolvimento
+
+Este projeto **não utiliza Android Studio**. O desenvolvimento foi feito com **Visual Studio Code** (ou Visual Studio) e a **extensão Flutter/Dart**, executando o app principalmente em **Windows desktop** (`flutter run -d windows`). O **Visual Studio 2022** (carga de trabalho *Desenvolvimento para desktop com C++*) é necessário para compilar o target Windows do Flutter.
 
 ---
 
-## Estrutura de pastas
+## Arquitetura
 
-```text
-backend/
-├── config/
-│   ├── database.js
-│   └── config.json.example
-│
-├── controllers/
-│   ├── UsuarioController.js
-│   ├── TarefaController.js
-│   └── SubtarefaController.js
-│
-├── middlewares/
-│   ├── auth.js
-│   └── authorize.js
-│
-├── migrations/
-│
-├── models/
-│   ├── index.js
-│   ├── usuario.js
-│   ├── tarefa.js
-│   └── subtarefa.js
-│
-├── routes/
-│   ├── index.js
-│   ├── usuario.routes.js
-│   ├── tarefa.routes.js
-│   └── subtarefas.routes.js
-│
-├── .env.example
-├── .gitignore
-├── .sequelizerc
-├── package.json
-├── package-lock.json
-└── server.js
+```mermaid
+flowchart LR
+  subgraph Cliente
+    A[App Flutter]
+  end
+  subgraph Servidor
+    B[Express API :3000]
+    C[Sequelize ORM]
+  end
+  subgraph Dados
+    D[(MySQL local)]
+  end
+  A -->|HTTP JSON + JWT| B
+  B --> C
+  C --> D
+```
+
+**Modelo de dados (resumo):**
+
+- **Usuarios** — `nome`, `email`, `senha` (hash), `role` (`admin` \| `user`)
+- **Tarefas** — vinculadas ao usuário (`usuarioId`)
+- **Subtarefas** — vinculadas à tarefa (`tarefaId`)
+
+---
+
+## Estrutura do repositório
+
+```
+neuroflux/
+├── README.md
+├── README.en.md
+├── backend/                    # API REST
+│   ├── server.js               # Entrada do servidor
+│   ├── config/                 # Configuração Sequelize
+│   ├── controllers/
+│   ├── middlewares/            # JWT e autorização
+│   ├── migrations/
+│   ├── models/
+│   └── routes/
+└── flutter_application_1/      # App Flutter
+    └── lib/
+        ├── main.dart
+        ├── core/
+        │   ├── navigation/         # FadePageRoute, SlidePageRoute
+        │   ├── theme/              # Tema claro/escuro
+        │   └── utils/              # Onboarding, som, confetti, etc.
+        ├── data/services/
+        ├── domain/models/
+        └── presentation/
+            ├── screens/
+            │   ├── splash_screen.dart
+            │   ├── onboarding_screen.dart
+            │   ├── auth_gate.dart
+            │   ├── focus_screen.dart
+            │   ├── home_shell.dart
+            │   └── admin/
+            └── widgets/
+                ├── pomodoro_timer.dart
+                └── admin/
 ```
 
 ---
 
-# Passo a passo para usar o backend
+## Pré-requisitos
 
-## 1. Clonar o repositório
+Instale e configure os itens abaixo antes de rodar o projeto:
+
+| Ferramenta | Versão sugerida | Observação |
+|------------|-----------------|------------|
+| **Node.js** | 18 LTS ou superior | `node -v` |
+| **npm** | Incluso no Node | `npm -v` |
+| **MySQL Server** | 8.x | Serviço local (ex.: MySQL Workbench) |
+| **Flutter SDK** | 3.x (Dart ≥ 3.0) | [Instalação oficial](https://docs.flutter.dev/get-started/install) |
+| **Git** | Qualquer recente | Clone do repositório |
+| **Visual Studio 2022** | Community ou superior | Carga *Desktop development with C++* (build Windows) |
+| **Editor** | VS Code recomendado | Extensões **Flutter** e **Dart** |
+
+Verifique o ambiente Flutter:
+
+```bash
+flutter doctor
+```
+
+Corrija pendências indicadas (SDK, licenças Android opcionais, toolchain Windows).
+
+---
+
+## Configuração do ambiente
+
+### 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/vasconcelosfelipe642-lang/neuroflux.git
-cd neuroflux/backend
+cd neuroflux
 ```
 
----
+### 2. Variáveis de ambiente da API
 
-## 2. Instalar as dependências
-
-```bash
-npm install
-```
-
----
-
-## 3. Ajustar os arquivos de configuração
-
-O repositório **já possui** os arquivos necessários de exemplo:
-
-```text
-backend/.env.example
-backend/config/config.json.example
-```
-
-Esses arquivos já estão no projeto para facilitar a configuração do backend.
-
-Quem for usar o projeto só precisa **abrir esses arquivos e alterar os valores de acordo com o próprio ambiente**, como usuário do MySQL, senha, nome do banco, host, porta e chave JWT.
-
-### `.env.example`
-
-Arquivo localizado em:
-
-```text
-backend/.env.example
-```
-
-Edite os valores conforme seu ambiente local:
+Na pasta `backend/`, crie o arquivo `.env` (não versionado — veja `.gitignore`):
 
 ```env
 PORT=3000
@@ -166,56 +223,36 @@ DB_USER=root
 DB_PASSWORD=sua_senha_mysql
 DB_NAME=neuroflux
 
-JWT_SECRET=sua_chave_secreta
+JWT_SECRET=uma_chave_secreta_longa_e_aleatoria
 ```
 
-### `config.json.example`
+> **Importante:** use senhas e segredos próprios no seu ambiente. Nunca commite o arquivo `.env`.
 
-Arquivo localizado em:
+Se for executar **migrations** com Sequelize CLI, alinhe também `backend/config/config.json` (ambiente `development`) com o mesmo usuário, senha e banco do `.env`.
 
-```text
-backend/config/config.json.example
+### 3. Dependências do backend
+
+```bash
+cd backend
+npm install
 ```
 
-Edite os valores conforme seu ambiente local:
+### 4. Dependências do Flutter
 
-```json
-{
-  "development": {
-    "username": "root",
-    "password": "sua_senha_mysql",
-    "database": "neuroflux",
-    "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
-  },
-  "test": {
-    "username": "root",
-    "password": "sua_senha_mysql",
-    "database": "neuroflux_test",
-    "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "usuario_producao",
-    "password": "senha_producao",
-    "database": "neuroflux_production",
-    "host": "host_producao",
-    "port": 3306,
-    "dialect": "mysql"
-  }
-}
+```bash
+cd ../flutter_application_1
+flutter pub get
 ```
 
-> Resumo: o projeto já vem com `.env.example` e `config/config.json.example`.  
-> Para configurar, basta editar os valores desses arquivos de acordo com o ambiente de quem está usando o projeto.
+A URL base da API está em `lib/data/services/api_client.dart` (padrão: `http://localhost:3000`). Para outro host ou porta, altere `_baseUrl` nesse arquivo.
 
 ---
 
-## 4. Criar o banco de dados no MySQL
+## Banco de dados local (MySQL)
 
-Acesse o MySQL e execute:
+### Criar o banco
+
+Conecte-se ao MySQL (CLI, Workbench ou outro cliente) e execute:
 
 ```sql
 CREATE DATABASE neuroflux
@@ -223,25 +260,43 @@ CREATE DATABASE neuroflux
   COLLATE utf8mb4_unicode_ci;
 ```
 
-Confirme se o usuário informado nos arquivos de configuração possui permissão para acessar esse banco.
+Confirme que o usuário definido em `DB_USER` possui permissão sobre esse banco.
 
----
+### Criar tabelas
 
-## 5. Rodar as migrations
+Há duas formas compatíveis com este projeto:
 
-Com o banco criado e os arquivos de configuração ajustados, execute:
+#### Opção A — Automática ao iniciar a API (recomendada para desenvolvimento)
+
+O `server.js` chama `sequelize.sync()` na subida. Ao rodar `npm start`, as tabelas são criadas/atualizadas conforme os models, desde que o MySQL esteja acessível.
+
+#### Opção B — Migrations com Sequelize CLI
 
 ```bash
+cd backend
 npx sequelize-cli db:migrate
 ```
 
-Esse comando cria as tabelas necessárias no banco.
+Migrations disponíveis:
+
+- `create-usuario`
+- `create-tarefa`
+- `create-subtarefa`
+
+Para reverter a última migration:
+
+```bash
+npx sequelize-cli db:migrate:undo
+```
 
 ---
 
-## 6. Iniciar o servidor
+## Executando a API
+
+Com o MySQL em execução e o `.env` configurado:
 
 ```bash
+cd backend
 npm start
 ```
 
@@ -252,287 +307,200 @@ DB sincronizado e MySQL conectado!
 Servidor Neuroflux rodando em http://localhost:3000
 ```
 
----
-
-## 7. Testar a API
-
-No navegador ou terminal, acesse:
+Teste rápido no navegador ou com curl:
 
 ```bash
 curl http://localhost:3000
 ```
 
-Resposta esperada:
-
-```text
-API Neuroflux funcionando
-```
+Resposta: `API Neuroflux funcionando`
 
 ---
 
-## Arquivos de configuração
+## Executando o app Flutter
 
-O projeto já possui os dois arquivos de exemplo usados para configuração:
+**Ordem recomendada:** 1) MySQL ativo → 2) API rodando → 3) App Flutter.
 
-| Arquivo no repositório | Finalidade |
-|------------------------|------------|
-| `.env.example` | Configurar porta, banco de dados e chave JWT |
-| `config/config.json.example` | Configurar o Sequelize e as migrations |
-
-Esses arquivos servem para orientar quem for rodar o backend localmente.
-
-Cada pessoa deve alterar os valores conforme o próprio ambiente, principalmente:
-
-- usuário do MySQL;
-- senha do MySQL;
-- nome do banco;
-- host;
-- porta;
-- chave JWT.
-
----
-
-## Banco de dados
-
-### Models principais
-
-O backend possui três entidades principais:
-
-```text
-Usuario 1:N Tarefa
-Tarefa 1:N Subtarefa
-```
-
-### Usuario
-
-| Campo | Descrição |
-|------|-----------|
-| `id` | Identificador do usuário |
-| `nome` | Nome do usuário |
-| `email` | E-mail único |
-| `senha` | Senha criptografada |
-| `role` | Perfil do usuário: `user` ou `admin` |
-
-### Tarefa
-
-| Campo | Descrição |
-|------|-----------|
-| `id` | Identificador da tarefa |
-| `titulo` | Título da tarefa |
-| `descricao` | Descrição da tarefa |
-| `concluida` | Status de conclusão |
-| `usuarioId` | Usuário dono da tarefa |
-
-### Subtarefa
-
-| Campo | Descrição |
-|------|-----------|
-| `id` | Identificador da subtarefa |
-| `titulo` | Título da subtarefa |
-| `concluida` | Status de conclusão |
-| `tarefaId` | Tarefa relacionada |
-
----
-
-## Executando o servidor
-
-Para rodar o backend:
+### Pelo terminal
 
 ```bash
-npm start
+cd flutter_application_1
+flutter devices
+flutter run -d windows
 ```
 
-Por padrão, a API sobe em:
+Outros alvos (se configurados):
 
-```text
-http://localhost:3000
+```bash
+flutter run -d chrome    # Web
+flutter run -d edge      # Web (Edge)
 ```
+
+### Pelo Visual Studio Code
+
+1. Abra a pasta `flutter_application_1` (ou a raiz do monorepo).
+2. Instale as extensões **Flutter** e **Dart**.
+3. Selecione o dispositivo **Windows** na barra inferior.
+4. Pressione **F5** ou use *Run > Start Debugging*.
+
+> **Android Studio não é obrigatório.** Para este projeto acadêmico, o fluxo principal documentado é **Windows desktop** via toolchain do Visual Studio 2022 + extensão Flutter no editor.
 
 ---
 
 ## Endpoints da API
 
-Base URL:
+Base URL: `http://localhost:3000`
 
-```text
-http://localhost:3000
-```
-
-### Rotas públicas
+### Públicos (sem token)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `GET` | `/` | Teste de funcionamento da API |
-| `GET` | `/teste-user` | Rota simples de teste |
+| `GET` | `/` | Health check da API |
+| `GET` | `/teste-user` | Rota de teste |
 | `POST` | `/register` | Cadastro de usuário |
-| `POST` | `/login` | Login e geração de token JWT |
+| `POST` | `/login` | Login (retorna JWT) |
 
----
-
-### Rotas protegidas
-
-As rotas protegidas precisam do header:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Usuários
+### Protegidos (header `Authorization: Bearer <token>`)
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `GET` | `/usuarios` | Lista usuários |
-| `GET` | `/usuarios/:id` | Busca usuário por ID |
-| `PUT` | `/usuarios/:id` | Atualiza usuário |
-| `DELETE` | `/usuarios/:id` | Exclui usuário |
+| `GET` | `/usuarios` | Listar usuários |
+| `GET` | `/usuarios/:id` | Buscar usuário |
+| `PUT` | `/usuarios/:id` | Atualizar usuário |
+| `DELETE` | `/usuarios/:id` | Excluir usuário — **somente role `admin`** |
+| `POST` | `/tarefas` | Criar tarefa |
+| `GET` | `/tarefas` | Listar tarefas (usuário: só as suas; **admin: todas**) |
+| `GET` | `/tarefas/:id` | Detalhar tarefa |
+| `PUT` | `/tarefas/:id` | Atualizar tarefa |
+| `DELETE` | `/tarefas/:id` | Excluir tarefa |
+| `POST` | `/subtarefas` | Criar subtarefa |
+| `GET` | `/subtarefas` | Listar subtarefas |
+| `GET` | `/subtarefas/:id` | Detalhar subtarefa |
+| `PUT` | `/subtarefas/:id` | Atualizar subtarefa |
+| `DELETE` | `/subtarefas/:id` | Excluir subtarefa |
 
-### Tarefas
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `POST` | `/tarefas` | Cria uma tarefa |
-| `GET` | `/tarefas` | Lista tarefas |
-| `GET` | `/tarefas/:id` | Busca tarefa por ID |
-| `PUT` | `/tarefas/:id` | Atualiza tarefa |
-| `DELETE` | `/tarefas/:id` | Remove tarefa |
-
-### Subtarefas
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `POST` | `/subtarefas` | Cria uma subtarefa |
-| `GET` | `/subtarefas` | Lista subtarefas |
-| `GET` | `/subtarefas/:id` | Busca subtarefa por ID |
-| `PUT` | `/subtarefas/:id` | Atualiza subtarefa |
-| `DELETE` | `/subtarefas/:id` | Remove subtarefa |
-
----
-
-## Autenticação e permissões
-
-O backend utiliza autenticação via **JWT**.
-
-Ao fazer login, a API retorna um token:
-
-```json
-{
-  "message": "Login bem-sucedido!",
-  "accessToken": "token_jwt",
-  "expiresIn": "1h"
-}
-```
-
-Esse token deve ser enviado nas rotas protegidas:
-
-```http
-Authorization: Bearer token_jwt
-```
-
-### Perfis
-
-| Role | Descrição |
-|------|-----------|
-| `user` | Usuário comum |
-| `admin` | Administrador |
-
----
-
-## Exemplos de requisições
-
-### Cadastro
-
-```bash
-curl -X POST http://localhost:3000/register \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"nome\": \"Gabriel\",
-    \"email\": \"gabriel@email.com\",
-    \"senha\": \"123456\"
-  }"
-```
-
----
-
-### Login
+**Exemplo de login:**
 
 ```bash
 curl -X POST http://localhost:3000/login \
   -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"gabriel@email.com\",
-    \"senha\": \"123456\"
-  }"
+  -d "{\"email\":\"seu@email.com\",\"senha\":\"sua_senha\"}"
 ```
 
 ---
 
-### Criar tarefa
+## Fluxo de uso do aplicativo
 
-```bash
-curl -X POST http://localhost:3000/tarefas \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -d "{
-    \"titulo\": \"Estudar API REST\",
-    \"descricao\": \"Revisar rotas, controllers e autenticação JWT\"
-  }"
+### Primeira abertura e retorno
+
+```text
+Splash (logo animada) → Onboarding (3 telas, só na 1ª vez) → Login ou Cadastro → Home
 ```
+
+Nas aberturas seguintes, o onboarding é pulado automaticamente.
+
+### Usuário comum (`role: user`)
+
+1. **Cadastre-se** ou **entre** com e-mail e senha.
+2. Na aba **Tarefas**, crie tarefas com subtarefas opcionais.
+3. Marque subtarefas e, em seguida, a tarefa (a conclusão da tarefa exige subtarefas finalizadas, quando existirem).
+4. Use **Modo Foco** (ícone no header, com tarefas pendentes) para trabalhar uma tarefa por vez.
+5. Toque no **timer** em um card para abrir o **Pomodoro** (10 / 15 / 25 min).
+6. Acompanhe o dia no card superior e na aba **Progresso** (frase do dia e visão semanal).
+7. Alterne **tema claro/escuro** no header; toque no **avatar** para **sair**.
+
+> A sessão permanece ativa após fechar o app: o token é restaurado automaticamente na próxima abertura.
+
+### Administrador (`role: admin`)
+
+Após o login, o app abre o **painel administrativo** em vez das abas de tarefas. Consulte a seção [Painel administrativo](#painel-administrativo).
 
 ---
 
-### Listar tarefas
+## Painel administrativo
 
-```bash
-curl -X GET http://localhost:3000/tarefas \
-  -H "Authorization: Bearer SEU_TOKEN"
+O painel é exibido automaticamente quando o JWT do usuário contém `role: admin`. Usuários com `role: user` seguem o fluxo normal de tarefas e progresso.
+
+### O que o administrador pode fazer
+
+| Tela | Recursos |
+|------|----------|
+| **Painel de controle** | Visão geral (usuários cadastrados, tarefas criadas/concluídas, banidos), lista de usuários recentes |
+| **Gerenciar usuários** | Busca, lista de ativos e banidos, acesso ao detalhe de cada usuário |
+| **Detalhe do usuário** | E-mail, tarefas criadas/concluídas, taxa de conclusão, atividade recente (tarefas) |
+| **Banir usuário** | Confirmação em modal → exclusão via `DELETE /usuarios/:id` |
+
+O logout do admin funciona como no usuário comum: toque no **avatar** → **Sair do Aplicativo**.
+
+### Como promover um usuário a administrador
+
+**Pelo app (recomendado):** no painel admin, abra o detalhe do usuário e use **Promover a administrador** (chama `PUT /usuarios/:id` com `role: admin`).
+
+**Pelo MySQL (alternativa local):**
+
+```sql
+UPDATE usuarios SET role = 'admin' WHERE email = 'seu@email.com';
+SELECT id, nome, email, role FROM usuarios WHERE email = 'seu@email.com';
 ```
 
----
+> **Importante:** o token JWT é gerado no login e inclui o `role`. Depois de promover, **faça logout e login novamente** para o app reconhecer o perfil admin.
 
-### Criar subtarefa
+### Passo a passo para testar o painel
 
-```bash
-curl -X POST http://localhost:3000/subtarefas \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -d "{
-    \"titulo\": \"Revisar controllers\",
-    \"tarefaId\": 1
-  }"
-```
+1. Suba a API (`npm start` em `backend/`) e o MySQL.
+2. Cadastre um usuário pelo app ou via `POST /register`.
+3. No MySQL, execute o `UPDATE` acima para definir `role = 'admin'`.
+4. No app, saia da conta (avatar → Sair) e entre de novo com esse usuário.
+5. O **painel administrativo** deve abrir automaticamente.
+6. Use **Ver todos →** para gerenciar usuários, ou toque em um usuário para ver detalhes e estatísticas.
+7. Use **Banir** para remover um usuário (requer token de admin).
+
+### Sobre o banimento
+
+- No backend, banir equivale a **`DELETE /usuarios/:id`** (exclusão permanente).
+- Usuários excluídos somem da listagem da API; o app mantém um **cache local** para exibir a seção “Usuários banidos” e o contador na visão geral.
+- Não há endpoint de “desbanir” — é um projeto acadêmico com fluxo simplificado.
+
+### Permissões de admin nas tarefas
+
+Com `role: admin`, a API retorna **todas as tarefas** em `GET /tarefas`, permitindo calcular estatísticas por usuário no painel. Usuários comuns continuam vendo apenas as próprias tarefas.
 
 ---
 
 ## Solução de problemas
 
-| Problema | Possível causa | Solução |
-|----------|----------------|---------|
-| `Erro ao iniciar o servidor` | MySQL desligado | Inicie o MySQL |
-| `Access denied for user` | Usuário ou senha incorretos | Revise os arquivos `.env.example` e `config/config.json.example` |
-| `Unknown database` | Banco não criado | Execute o `CREATE DATABASE neuroflux` |
-| `JWT_SECRET undefined` | Chave JWT não configurada | Verifique o valor de `JWT_SECRET` |
-| `Não autorizado` | Token não enviado | Envie `Authorization: Bearer <token>` |
-| `Token inválido ou expirado` | Token expirado | Faça login novamente |
-| Tarefas não aparecem no app | API desligada ou URL errada | Confirme se o backend está rodando em `localhost:3000` |
+| Problema | Possível causa | O que fazer |
+|----------|----------------|-------------|
+| `Erro ao iniciar o servidor` / falha de conexão | MySQL parado ou credenciais incorretas | Inicie o serviço MySQL; revise `.env` |
+| `Access denied for user` | Usuário/senha do MySQL | Ajuste `DB_USER` e `DB_PASSWORD` |
+| App não carrega tarefas | API offline ou URL errada | Confirme `npm start` e `_baseUrl` em `api_client.dart` |
+| `flutter run -d windows` falha | Falta toolchain C++ | Instale VS 2022 com *Desktop development with C++*; rode `flutter doctor` |
+| Erro de rede no emulador Android | `localhost` no emulador | Use `10.0.2.2:3000` no lugar de `localhost` (se testar em Android) |
+| Token inválido após 1 h | Expiração JWT | Faça login novamente (`expiresIn: '1h'`) |
+| Painel admin não aparece | Token antigo sem `role` atualizado | Logout + login após `UPDATE` no MySQL |
+| `403` ao banir usuário | Usuário logado não é admin | Confirme `role = 'admin'` no banco e refaça o login |
+| App pede login a cada abertura | Token não persistido | Rode `flutter pub get`; confirme dependência `flutter_secure_storage` |
 
 ---
 
 ## Contexto acadêmico
 
-Este backend faz parte do projeto acadêmico **NeuroFlux**, uma solução full stack voltada à organização de tarefas para pessoas neurodivergentes, especialmente pessoas com TDAH.
-
-O objetivo da API é demonstrar:
-
-- Criação de servidor com Node.js e Express;
-- Integração com banco relacional MySQL;
-- Uso de ORM com Sequelize;
-- Autenticação com JWT;
-- Controle de permissões;
-- Estruturação de rotas, controllers, models e middlewares;
-- Comunicação com frontend Flutter por meio de API REST.
+Este repositório documenta um **trabalho acadêmico** de desenvolvimento de software. O objetivo é demonstrar integração entre mobile/desktop (Flutter), API REST (Node.js/Express) e banco relacional (MySQL), aplicados a um problema real de acessibilidade cognitiva para pessoas com TDAH.
 
 ---
 
 ## Licença
 
 Projeto acadêmico — consulte os autores da disciplina/instituição para termos de uso e distribuição.
+
+---
+
+## Referências rápidas
+
+| Comando | Onde |
+|---------|------|
+| `npm install` | `backend/` |
+| `npm start` | `backend/` — sobe API na porta 3000 |
+| `npx sequelize-cli db:migrate` | `backend/` — migrations manuais |
+| `flutter pub get` | `flutter_application_1/` |
+| `flutter run -d windows` | `flutter_application_1/` — app desktop |
