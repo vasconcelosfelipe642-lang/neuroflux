@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'theme_provider.dart';
 
 abstract final class AppColors {
-  static const primary = Color(0xFFE8622A);
-  static const primaryLight = Color(0xFFFFF3EE);
-  static const primaryDisabled = Color(0xFFF0997B);
+  static const primary = Color.fromARGB(255, 255, 143, 95);
+  static const primaryLight = Color.fromARGB(255, 255, 143, 95);
+  static const primaryDisabled = Color.fromARGB(255, 240, 153, 123);
 
   static const _backgroundLight = Color(0xFFF7F6F2);
   static const _surfaceLight = Color(0xFFFFFFFF);
@@ -39,7 +39,8 @@ abstract final class AppColors {
   static Color get surface => _isDark ? _surfaceDark : _surfaceLight;
   static Color get border => _isDark ? _borderDark : _borderLight;
   static Color get divider => _isDark ? _dividerDark : _dividerLight;
-  static Color get textPrimary => _isDark ? _textPrimaryDark : _textPrimaryLight;
+  static Color get textPrimary =>
+      _isDark ? _textPrimaryDark : _textPrimaryLight;
   static Color get textSecondary =>
       _isDark ? _textSecondaryDark : _textSecondaryLight;
   static Color get textHint => _isDark ? _textHintDark : _textHintLight;
@@ -47,22 +48,23 @@ abstract final class AppColors {
   static Color get primaryLightTint =>
       _isDark ? _primaryLightDark : primaryLight;
   static Color get muted => _isDark ? _mutedDark : _mutedLight;
-  static Color get dangerLight => _isDark ? _dangerLightDark : _dangerLightLight;
+  static Color get dangerLight =>
+      _isDark ? _dangerLightDark : _dangerLightLight;
   static Color get successLight =>
       _isDark ? _successLightDark : _successLightLight;
   static Color get infoLight => _isDark ? _infoLightDark : _infoLightLight;
 
-  static const avatarBackground = Color(0xFFE8622A);
+  static const avatarBackground = Color.fromARGB(255, 255, 143, 95);
   static const avatarForeground = Color(0xFFFFFFFF);
 
-  static const danger = Color(0xFFE53935);
+  static const danger = Color.fromARGB(255, 255, 111, 109);
   static const dangerDark = Color(0xFFD32F2F);
   static const success = Color(0xFF43A047);
   static const info = Color(0xFF1E88E5);
   static const mutedText = Color(0xFF9E9E9E);
 
   static const List<Color> avatarPalette = [
-    Color(0xFFE8622A),
+    Color.fromARGB(255, 255, 143, 95),
     Color(0xFF1E88E5),
     Color(0xFF8E24AA),
     Color(0xFF43A047),

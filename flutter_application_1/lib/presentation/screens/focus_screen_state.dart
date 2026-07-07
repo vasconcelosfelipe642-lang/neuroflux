@@ -8,10 +8,11 @@ import '../../domain/models/subtask_model.dart';
 import '../../domain/models/task_model.dart';
 import 'focus_screen.dart';
 
+
 class FocusScreenState extends State<FocusScreen> {
-  static const _focusBackground = Color(0xFF1A1A2E);
-  static const _subtaskPanel = Color(0xFF252542);
-  static const _subtaskBorder = Color(0xFF3D3D5C);
+  static const _focusBackground = Color.fromARGB(255, 100, 100, 179);
+  static const _subtaskPanel = Color.fromARGB(255, 116, 116, 170);
+  static const _subtaskBorder = Color.fromARGB(255, 122, 122, 248);
 
   late List<TaskModel> _pending;
   int _currentIndex = 0;
@@ -228,7 +229,7 @@ class FocusScreenState extends State<FocusScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFFFFB74D),
+                color:Color.fromARGB(255, 255, 183, 77),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -331,16 +332,18 @@ class FocusScreenState extends State<FocusScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 28,
-                height: 28,
+                width: 34,
+                height: 34,
                 child: Checkbox(
                   value: sub.isCompleted,
                   onChanged: _isBusy ? null : (_) => _toggleSubtask(sub),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                   side: const BorderSide(color: Color(0xFF8A8AA8), width: 2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                 ),
               ),

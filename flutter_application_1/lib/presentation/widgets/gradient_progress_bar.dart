@@ -8,7 +8,7 @@ class GradientProgressBar extends StatelessWidget {
   const GradientProgressBar({super.key, required this.progress});
 
   static const _trackColor = Color(0x4DFFFFFF);
-  static const _gradientStart = Color(0xFFFFB347);
+  static const _gradientStart = Color.fromARGB(255, 255, 143, 95);
   static const _gradientEnd = Colors.white;
 
   @override
