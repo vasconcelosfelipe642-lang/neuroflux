@@ -54,11 +54,21 @@ class TaskTile extends StatelessWidget {
             padding: const EdgeInsets.all(AppSizes.sm),
             child: Row(
               children: [
-                Checkbox(
-                  value: task.isCompleted,
-                  onChanged: (_) => onToggle(),
-                  activeColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: SizedBox(
+                    width: 34,
+                    height: 34,
+                    child: Checkbox(
+                      value: task.isCompleted,
+                      onChanged: (_) => onToggle(),
+                      activeColor: AppColors.primary,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      side: BorderSide(color: AppColors.textHint, width: 1.8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: Text(

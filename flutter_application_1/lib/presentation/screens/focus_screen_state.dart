@@ -4,15 +4,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_sizes.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_scope.dart';
 import '../../domain/models/subtask_model.dart';
 import '../../domain/models/task_model.dart';
+import '../widgets/theme_toggle_button.dart';
 import 'focus_screen.dart';
 
 class FocusScreenState extends State<FocusScreen> {
-  static const _focusBackground = Color(0xFF1A1A2E);
-  static const _subtaskPanel = Color(0xFF252542);
-  static const _subtaskBorder = Color(0xFF3D3D5C);
-
   late List<TaskModel> _pending;
   int _currentIndex = 0;
   int _slideKey = 0;
@@ -90,9 +88,17 @@ class FocusScreenState extends State<FocusScreen> {
   @override
   Widget build(BuildContext context) {
     final task = _currentTask;
+    final themeProvider = ThemeScope.watch(context);
+    final isDark = themeProvider.isDark;
+    final focusBackground = isDark
+        ? const Color.fromARGB(255, 100, 100, 179)
+        : const Color(0xFFF3F1FF);
+    final headerIconColor = isDark ? Colors.white70 : const Color(0xFF5B5673);
+    final headerTextColor = isDark ? Colors.white70 : const Color(0xFF5B5673);
+    final progressBackgroundColor = isDark ? Colors.white24 : Colors.black12;
 
     return Scaffold(
-      backgroundColor: _focusBackground,
+      backgroundColor: focusBackground,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSizes.pagePadding),
@@ -103,15 +109,16 @@ class FocusScreenState extends State<FocusScreen> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.white70),
+                    icon: Icon(Icons.close, color: headerIconColor),
                     tooltip: 'Sair do Foco',
                   ),
                   const Spacer(),
+                  const ThemeToggleButton(),
                   if (_pending.isNotEmpty)
                     Text(
                       'Tarefa ${_currentIndex + 1} de $_total',
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: headerTextColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -125,7 +132,7 @@ class FocusScreenState extends State<FocusScreen> {
                   child: LinearProgressIndicator(
                     value: (_currentIndex + 1) / _total,
                     minHeight: 6,
-                    backgroundColor: Colors.white24,
+                    backgroundColor: progressBackgroundColor,
                     valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
@@ -143,28 +150,34 @@ class FocusScreenState extends State<FocusScreen> {
   }
 
   Widget _buildCongrats() {
+    final themeProvider = ThemeScope.watch(context);
+    final isDark = themeProvider.isDark;
+    final titleColor = isDark ? Colors.white : const Color(0xFF2D2A47);
+    final bodyColor = isDark ? Colors.white70 : const Color(0xFF6A6782);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.celebration_rounded, size: 72, color: AppColors.primary),
+          const Icon(Icons.celebration_rounded,
+              size: 72, color: AppColors.primary),
           const SizedBox(height: AppSizes.lg),
-          const Text(
+          Text(
             'Parabéns!',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: titleColor,
             ),
           ),
           const SizedBox(height: AppSizes.md),
-          const Text(
+          Text(
             'Você concluiu todas as tarefas pendentes no Modo Foco.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white70,
+              color: bodyColor,
               height: 1.45,
             ),
           ),
@@ -182,6 +195,12 @@ class FocusScreenState extends State<FocusScreen> {
   }
 
   Widget _buildTaskFocus(TaskModel task, int slideKey) {
+    final themeProvider = ThemeScope.watch(context);
+    final isDark = themeProvider.isDark;
+    final titleColor = isDark ? Colors.white : const Color(0xFF2D2A47);
+    final hintColor = isDark
+        ? const Color.fromARGB(255, 255, 183, 77)
+        : const Color(0xFFC96A00);
     final canComplete = task.canComplete;
     final hasSubtasks = task.hasSubtasks;
 
@@ -197,16 +216,13 @@ class FocusScreenState extends State<FocusScreen> {
                 Text(
                   task.title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: titleColor,
                     height: 1.3,
                   ),
-                )
-                    .animate()
-                    .fadeIn(duration: 350.ms)
-                    .slideX(
+                ).animate().fadeIn(duration: 350.ms).slideX(
                       begin: 0.08,
                       end: 0,
                       duration: 350.ms,
@@ -226,9 +242,9 @@ class FocusScreenState extends State<FocusScreen> {
             child: Text(
               'Conclua ${task.completedSubtasks} de ${task.subtasks.length} subtarefas para avançar',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFFFFB74D),
+                color: hintColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -239,7 +255,8 @@ class FocusScreenState extends State<FocusScreen> {
             onPressed: (_isBusy || !canComplete) ? null : _completeAndAdvance,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
+              disabledBackgroundColor:
+                  AppColors.primary.withValues(alpha: 0.35),
               minimumSize: const Size(double.infinity, 52),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusFull),
@@ -255,8 +272,11 @@ class FocusScreenState extends State<FocusScreen> {
                     ),
                   )
                 : Text(
-                    hasSubtasks ? 'Concluir tarefa e avançar' : 'Concluir e avançar',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    hasSubtasks
+                        ? 'Concluir tarefa e avançar'
+                        : 'Concluir e avançar',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700),
                   ),
           ),
         ),
@@ -265,6 +285,15 @@ class FocusScreenState extends State<FocusScreen> {
   }
 
   Widget _buildSubtasksPanel(TaskModel task) {
+    final themeProvider = ThemeScope.watch(context);
+    final isDark = themeProvider.isDark;
+    final panelColor =
+        isDark ? const Color.fromARGB(255, 116, 116, 170) : Colors.white;
+    final panelBorderColor = isDark
+        ? const Color.fromARGB(255, 122, 122, 248)
+        : const Color(0xFFE0DDFC);
+    final titleColor = isDark ? Colors.white : const Color(0xFF2D2A47);
+    final progressBackgroundColor = isDark ? Colors.white12 : Colors.black12;
     final done = task.completedSubtasks;
     final total = task.subtasks.length;
 
@@ -272,23 +301,24 @@ class FocusScreenState extends State<FocusScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
-        color: _subtaskPanel,
+        color: panelColor,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border: Border.all(color: _subtaskBorder, width: 1),
+        border: Border.all(color: panelBorderColor, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.checklist_rounded, color: AppColors.primary, size: 22),
+              const Icon(Icons.checklist_rounded,
+                  color: AppColors.primary, size: 22),
               const SizedBox(width: AppSizes.sm),
-              const Text(
+              Text(
                 'Subtarefas',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: titleColor,
                 ),
               ),
               const Spacer(),
@@ -308,7 +338,7 @@ class FocusScreenState extends State<FocusScreen> {
             child: LinearProgressIndicator(
               value: total == 0 ? 0 : done / total,
               minHeight: 4,
-              backgroundColor: Colors.white12,
+              backgroundColor: progressBackgroundColor,
               valueColor: const AlwaysStoppedAnimation(AppColors.primary),
             ),
           ),
@@ -320,27 +350,36 @@ class FocusScreenState extends State<FocusScreen> {
   }
 
   Widget _buildSubtaskTile(SubtaskModel sub) {
+    final themeProvider = ThemeScope.watch(context);
+    final isDark = themeProvider.isDark;
+    final titleColor = isDark ? Colors.white : const Color(0xFF2D2A47);
+    final completedColor =
+        isDark ? const Color(0xFF9A9AB0) : const Color(0xFF7D7A90);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: _isBusy ? null : () => _toggleSubtask(sub),
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSizes.sm, horizontal: 4),
+          padding:
+              const EdgeInsets.symmetric(vertical: AppSizes.sm, horizontal: 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 28,
-                height: 28,
+                width: 34,
+                height: 34,
                 child: Checkbox(
                   value: sub.isCompleted,
                   onChanged: _isBusy ? null : (_) => _toggleSubtask(sub),
                   activeColor: AppColors.primary,
                   checkColor: Colors.white,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                   side: const BorderSide(color: Color(0xFF8A8AA8), width: 2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                 ),
               ),
@@ -354,13 +393,10 @@ class FocusScreenState extends State<FocusScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       height: 1.35,
-                      color: sub.isCompleted
-                          ? const Color(0xFF9A9AB0)
-                          : Colors.white,
-                      decoration: sub.isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
-                      decorationColor: const Color(0xFF9A9AB0),
+                      color: sub.isCompleted ? completedColor : titleColor,
+                      decoration:
+                          sub.isCompleted ? TextDecoration.lineThrough : null,
+                      decorationColor: completedColor,
                     ),
                   ),
                 ),

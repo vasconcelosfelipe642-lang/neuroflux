@@ -23,7 +23,7 @@ class NewTaskButtonState extends State<NewTaskButton> {
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.4),
+                color: const Color.fromARGB(255, 238, 141, 99).withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -32,7 +32,7 @@ class NewTaskButtonState extends State<NewTaskButton> {
           child: ElevatedButton(
             onPressed: widget.onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: const Color.fromARGB(255, 238, 141, 99),
               foregroundColor: Colors.white,
               elevation: 0,
               minimumSize: const Size(double.infinity, 52),
