@@ -66,7 +66,7 @@ class NewTaskModalState extends State<NewTaskModal> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppSizes.radiusXl),
         ),
       ),

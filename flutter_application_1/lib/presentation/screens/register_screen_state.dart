@@ -99,7 +99,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: NeuroFluxLogo(size: 72, showTagline: false),
                 ),
                 const SizedBox(height: 28),
-                AuthSectionHeader(
+                const AuthSectionHeader(
                   title: AppStrings.registerTitle,
                   subtitle: AppStrings.registerSubtitle,
                 ),
@@ -129,7 +129,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                 Text(AppStrings.userTypeLabel, style: AppTextStyles.fieldLabel),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedRole,
+                  initialValue: _selectedRole,
                   decoration: const InputDecoration(
                     hintText: AppStrings.userTypeHint,
                   ),

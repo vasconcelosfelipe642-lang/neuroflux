@@ -25,6 +25,8 @@ class SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     final onboardingDone = await OnboardingStorage.isCompleted();
+    if (!mounted) return;
+
     final next = onboardingDone ? const AuthGate() : const OnboardingScreen();
 
     Navigator.of(context).pushReplacement(FadePageRoute(child: next));

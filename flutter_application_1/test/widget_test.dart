@@ -5,7 +5,7 @@ import 'package:flutter_application_1/main.dart';
 void main() {
   testWidgets('NeuroFlux app inicia', (WidgetTester tester) async {
     await tester.pumpWidget(
-      ThemeScope(
+      const ThemeScope(
         child: NeuroFluxApp(),
       ),
     );

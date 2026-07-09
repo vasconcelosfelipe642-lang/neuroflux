@@ -15,7 +15,7 @@ class LoginPrompt extends StatelessWidget {
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(AppStrings.hasAccount, style: AppTextStyles.authBodySmall),
+          const Text(AppStrings.hasAccount, style: AppTextStyles.authBodySmall),
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
@@ -23,7 +23,7 @@ class LoginPrompt extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(AppStrings.loginLink, style: AppTextStyles.authLink),
+            child: const Text(AppStrings.loginLink, style: AppTextStyles.authLink),
           ),
         ],
       ),

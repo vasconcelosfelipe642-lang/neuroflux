@@ -15,7 +15,7 @@ class SignUpPrompt extends StatelessWidget {
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(AppStrings.noAccount, style: AppTextStyles.authBodySmall),
+          const Text(AppStrings.noAccount, style: AppTextStyles.authBodySmall),
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
@@ -23,7 +23,7 @@ class SignUpPrompt extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
+            child: const Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
           ),
         ],
       ),
