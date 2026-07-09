@@ -1,10 +1,19 @@
 const { Tarefa, Subtarefa } = require('../models');
 
+const isAppMetricsRequest = (req) => {
+  const headerValue = req.headers['x-app-client'];
+  return headerValue === 'true' || headerValue === '1';
+};
+
 module.exports = {
   
   // [POST]
   async store(req, res) {
     try {
+      if (req.user && req.user.role === 'admin') {
+        return res.status(403).json({ error: 'Usuários com perfil admin não podem criar tarefas.' });
+      }
+
       console.log(req.body);
       const { titulo, descricao } = req.body;
 
@@ -28,10 +37,19 @@ module.exports = {
   // [GET] Listar todas as tarefas com suas subtarefas
   async index(req, res) {
     try {
+      if (req.user && req.user.role === 'admin' && !isAppMetricsRequest(req)) {
+        return res.json([]);
+      }
+
       let where = {};
 
       if (req.user.role !== 'admin') {
         where.usuarioId = req.user.id;
+      } else if (isAppMetricsRequest(req)) {
+        const requestedUserId = req.query?.userId || req.query?.user_id;
+        if (requestedUserId) {
+          where.usuarioId = requestedUserId;
+        }
       }
       
       const tarefas = await Tarefa.findAll({ 
@@ -53,6 +71,10 @@ module.exports = {
   // [GET - ID] Buscar uma tarefa específica com suas subtarefas
   async show(req, res) {
     try {
+      if (req.user && req.user.role === 'admin' && !isAppMetricsRequest(req)) {
+        return res.status(403).json({ error: 'Usuários com perfil admin não podem visualizar tarefas.' });
+      }
+
       const { id } = req.params;
       const tarefa = await Tarefa.findByPk(id, {
         include: [{
@@ -79,6 +101,10 @@ module.exports = {
   // [PUT]
   async update(req, res) {
     try {
+      if (req.user && req.user.role === 'admin') {
+        return res.status(403).json({ error: 'Usuários com perfil admin não podem editar tarefas.' });
+      }
+
       const { id } = req.params;
       const { titulo, descricao, concluida } = req.body;
       const tarefa = await Tarefa.findByPk(id);
@@ -99,6 +125,10 @@ module.exports = {
   // [DELETE]
   async delete(req, res) {
     try {
+      if (req.user && req.user.role === 'admin') {
+        return res.status(403).json({ error: 'Usuários com perfil admin não podem deletar tarefas.' });
+      }
+
       const { id } = req.params;
       const tarefa = await Tarefa.findByPk(id, {
         include: [{

@@ -1,4 +1,4 @@
-const { Usuario } = require('../models');
+const { Usuario, Tarefa, Subtarefa } = require('../models');
 const bcrypt = require('bcrypt'); 
 const jwt = require('jsonwebtoken'); 
 require('dotenv').config(); 
@@ -110,7 +110,22 @@ module.exports = {
       
       if (!usuario) return res.status(404).json({ error: 'Usuário não encontrado' });
 
+      const wasUserRole = usuario.role === 'user';
+      const isPromotingToAdmin = req.body?.role === 'admin' && wasUserRole;
+
       await usuario.update(req.body);
+
+      if (isPromotingToAdmin) {
+        const tarefasDoUsuario = await Tarefa.findAll({
+          where: { usuarioId: usuario.id },
+          include: [{ model: Subtarefa, as: 'subtarefas' }],
+        });
+
+        for (const tarefa of tarefasDoUsuario) {
+          await tarefa.destroy();
+        }
+      }
+
       return res.json({ message: 'Dados atualizados com sucesso' });
     } catch (error) {
       return res.status(400).json({ error: 'Erro ao atualizar usuário' });

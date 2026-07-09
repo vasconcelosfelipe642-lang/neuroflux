@@ -23,8 +23,8 @@ class ApiClient {
 
   Map<String, String> get _headers => {
         HttpHeaders.contentTypeHeader: 'application/json',
-        if (_token != null)
-          HttpHeaders.authorizationHeader: 'Bearer $_token',
+        'x-app-client': 'true',
+        if (_token != null) HttpHeaders.authorizationHeader: 'Bearer $_token',
       };
 
   Uri _uri(String path) => Uri.parse('$_baseUrl$path');
@@ -76,13 +76,17 @@ class ApiClient {
     return _handleList(res);
   }
 
-  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
-    final res = await http.post(_uri(path), headers: _headers, body: jsonEncode(body));
+  Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.post(_uri(path), headers: _headers, body: jsonEncode(body));
     return _handleMap(res);
   }
 
-  Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
-    final res = await http.put(_uri(path), headers: _headers, body: jsonEncode(body));
+  Future<Map<String, dynamic>> put(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.put(_uri(path), headers: _headers, body: jsonEncode(body));
     return _handleMap(res);
   }
 
