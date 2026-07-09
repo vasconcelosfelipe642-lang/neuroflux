@@ -29,7 +29,7 @@ abstract final class TokenStorageService {
 
   static Future<String?> getAccessToken() async {
     final token = await _secureStorage.read(key: _accessTokenKey);
-    return token ?? _secureStorage.read(key: _legacyTokenKey);
+    return token ?? await _secureStorage.read(key: _legacyTokenKey);
   }
 
   static Future<String?> getRefreshToken() {

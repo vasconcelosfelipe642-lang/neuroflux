@@ -109,11 +109,14 @@ class ApiClient {
     Map<String, dynamic> body, {
     bool retryOnUnauthorized = true,
   }) async {
-    final request = () => http.post(
-          _uri(path),
-          headers: _headers,
-          body: jsonEncode(body),
-        );
+    Future<http.Response> request() {
+      return http.post(
+        _uri(path),
+        headers: _headers,
+        body: jsonEncode(body),
+      );
+    }
+
     final res = retryOnUnauthorized
         ? await _sendWithRefreshRetry(request)
         : await request();
@@ -125,11 +128,14 @@ class ApiClient {
     Map<String, dynamic> body, {
     bool retryOnUnauthorized = true,
   }) async {
-    final request = () => http.post(
-          _uri(path),
-          headers: _headers,
-          body: jsonEncode(body),
-        );
+    Future<http.Response> request() {
+      return http.post(
+        _uri(path),
+        headers: _headers,
+        body: jsonEncode(body),
+      );
+    }
+
     final res = retryOnUnauthorized
         ? await _sendWithRefreshRetry(request)
         : await request();
