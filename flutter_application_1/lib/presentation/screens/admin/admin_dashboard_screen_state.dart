@@ -219,7 +219,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildRecentUsersList() {
     final recent = _users
-        .where((u) => u.id != widget.admin.id && u.role != 'admin')
+        .where((u) => u.id != widget.admin.id && !u.isAdmin)
         .take(5)
         .toList();
 
