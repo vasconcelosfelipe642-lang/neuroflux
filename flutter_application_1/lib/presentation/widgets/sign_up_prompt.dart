@@ -15,7 +15,7 @@ class SignUpPrompt extends StatelessWidget {
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          const Text(AppStrings.noAccount, style: AppTextStyles.authBodySmall),
+          Text(AppStrings.noAccount, style: AppTextStyles.authBodySmall),
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
