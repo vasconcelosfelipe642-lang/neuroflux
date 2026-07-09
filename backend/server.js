@@ -22,8 +22,8 @@ async function startServer() {
     await db.sequelize.sync(); 
     console.log('DB sincronizado e MySQL conectado!'); 
 
-     app.listen(PORT, () => {
-      console.log(`Servidor Neuroflux rodando em http://localhost:${PORT}`);
+     app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor Neuroflux rodando em http://0.0.0.0:${PORT}`);
     });
   } catch (err) {
     console.error('Erro ao iniciar o servidor:', err); 

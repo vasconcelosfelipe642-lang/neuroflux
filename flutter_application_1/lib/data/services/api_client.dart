@@ -10,8 +10,24 @@ class ApiClient {
   ApiClient._();
   static final instance = ApiClient._();
 
-  // Troque pela URL de produção via .env quando for ao ar
-  static const _baseUrl = 'http://localhost:3000';
+  static String get _baseUrl {
+    const configuredUrl = String.fromEnvironment('API_BASE_URL');
+    if (configuredUrl.isNotEmpty) {
+      return configuredUrl.endsWith('/')
+          ? configuredUrl.substring(0, configuredUrl.length - 1)
+          : configuredUrl;
+    }
+
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000';
+    }
+
+    if (Platform.isIOS) {
+      return 'http://127.0.0.1:3000';
+    }
+
+    return 'http://localhost:3000';
+  }
 
   String? _token;
 

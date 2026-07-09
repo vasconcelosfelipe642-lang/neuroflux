@@ -8,10 +8,12 @@ import '../../core/theme/theme_scope.dart';
 import '../../domain/models/register_form_model.dart';
 import '../widgets/auth_section_header.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/font_scale_button.dart';
 import '../widgets/login_prompt.dart';
 import '../widgets/neuroflux_logo.dart';
 import '../widgets/register_button.dart';
 import '../widgets/terms_text.dart';
+import '../widgets/theme_toggle_button.dart';
 import 'register_screen.dart';
 
 class RegisterScreenState extends State<RegisterScreen> {
@@ -90,7 +92,19 @@ class RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      FontScaleButton(),
+                      ThemeToggleButton(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 const Center(
                   child: NeuroFluxLogo(size: 72, showTagline: false),
                 ),

@@ -7,9 +7,11 @@ import '../../core/theme/theme_scope.dart';
 import '../../domain/models/login_form_model.dart';
 import '../widgets/auth_section_header.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/font_scale_button.dart';
 import '../widgets/login_button.dart';
 import '../widgets/neuroflux_logo.dart';
 import '../widgets/sign_up_prompt.dart';
+import '../widgets/theme_toggle_button.dart';
 import 'login_screen.dart';
 
 class LoginScreenState extends State<LoginScreen> {
@@ -69,7 +71,19 @@ class LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      FontScaleButton(),
+                      ThemeToggleButton(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 const Center(child: NeuroFluxLogo(size: 90)),
                 const SizedBox(height: 40),
                 AuthSectionHeader(

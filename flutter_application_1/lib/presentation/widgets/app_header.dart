@@ -11,6 +11,7 @@ import '../../domain/models/user_model.dart';
 import '../../core/theme/theme_scope.dart';
 
 import 'app_header_avatar.dart';
+import 'font_scale_button.dart';
 import 'theme_toggle_button.dart';
 
 
@@ -227,6 +228,7 @@ class AppHeader extends StatelessWidget {
 
           ],
 
+          const FontScaleButton(),
           const ThemeToggleButton(),
 
         ],
