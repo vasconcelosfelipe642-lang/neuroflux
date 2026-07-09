@@ -10,6 +10,7 @@
     "db:migrate:undo": "sequelize-cli db:migrate:undo",
     "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "db:status": "sequelize-cli db:migrate:status",
+    "admin:create": "node scripts/createAdmin.js",
     "check": "node --check server.js"
   },
   "repository": {
