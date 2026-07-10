@@ -7,11 +7,13 @@ module.exports = (sequelize, DataTypes) => {
 
       this.belongsTo(models.Usuario, {
         foreignKey: 'usuarioId',
-        as: 'usuario'
+        as: 'usuario',
+        onDelete: 'CASCADE',
       });
       this.hasMany(models.Subtarefa, {
         foreignKey: 'tarefaId',
         as: 'subtarefas',
+        onDelete: 'CASCADE',
       });
     }
   }

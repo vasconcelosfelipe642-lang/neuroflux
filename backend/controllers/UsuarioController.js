@@ -116,14 +116,11 @@ module.exports = {
       await usuario.update(req.body);
 
       if (isPromotingToAdmin) {
-        const tarefasDoUsuario = await Tarefa.findAll({
-          where: { usuarioId: usuario.id },
-          include: [{ model: Subtarefa, as: 'subtarefas' }],
+        await Tarefa.destroy({
+          where: {
+            usuarioId: usuario.id
+          }
         });
-
-        for (const tarefa of tarefasDoUsuario) {
-          await tarefa.destroy();
-        }
       }
 
       return res.json({ message: 'Dados atualizados com sucesso' });
