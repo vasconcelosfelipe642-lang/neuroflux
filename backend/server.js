@@ -3,12 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./models'); 
 const routes = require('./routes'); 
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json()); 
-
+app.use('/auth', authRoutes);
 app.get('/', (req, res) => {
   res.send('API Neuroflux funcionando');
 });
