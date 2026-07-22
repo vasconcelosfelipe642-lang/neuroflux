@@ -89,13 +89,41 @@ module.exports = {
         return res.status(403).json({ error: 'Você não tem permissão para editar esta tarefa.' });
       }
 
-      await tarefa.update({ titulo, descricao, concluida });
-      return res.json(tarefa);
+      const updates = {};
+      if (typeof titulo !== 'undefined') updates.titulo = titulo;
+      if (typeof descricao !== 'undefined') updates.descricao = descricao;
+      if (typeof concluida === 'boolean') {
+        updates.concluida = concluida;
+        updates.concluidaEm = concluida ? new Date() : null;
+      }
+
+      await tarefa.update(updates);
+      const tarefaAtualizada = await Tarefa.findByPk(id);
+      return res.json(tarefaAtualizada);
     } catch (error) {
       return res.status(400).json({ error: 'Erro ao atualizar.' });
     }
   },
+async updateCompletionStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { concluida } = req.body;
 
+      const tarefa = await Tarefa.findByPk(id);
+
+      if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+
+      if (tarefa.usuarioId !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Você não tem permissão para atualizar o status de conclusão desta tarefa.' });
+      }
+
+      await tarefa.update({ concluida, concluidaEm: concluida ? new Date() : null });
+      const tarefaAtualizada = await Tarefa.findByPk(id);
+      return res.json(tarefaAtualizada);
+    } catch (error) {
+      return res.status(400).json({ error: 'Erro ao atualizar o status de conclusão.' });
+    }
+  },
   // [DELETE]
   async delete(req, res) {
     try {

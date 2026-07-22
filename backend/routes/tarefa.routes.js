@@ -9,6 +9,7 @@ const authorize = require('../middlewares/authorize');
 router.post('/tarefas', verifyToken, tarefaController.store);
 router.get('/tarefas', verifyToken, tarefaController.index);
 router.get('/tarefas/:id', verifyToken, tarefaController.show);
+router.patch('/tarefas/:id/concluir', verifyToken, tarefaController.updateCompletionStatus); 
 router.put('/tarefas/:id', verifyToken, tarefaController.update);
 
 // Apenas admin ou o criador da tarefa pode deletar
