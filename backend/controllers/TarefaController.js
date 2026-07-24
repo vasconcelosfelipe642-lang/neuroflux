@@ -2,19 +2,15 @@ const { Tarefa, Subtarefa } = require('../models');
 
 module.exports = {
   
-  // [POST]
   async store(req, res) {
     try {
-      console.log(req.body);
-      const { titulo, descricao } = req.body;
-
+      const { titulo, descricao, is_diaria } = req.body;
       const usuarioId = req.user.id;
       
-      const tarefa = await Tarefa.create({ titulo, descricao, usuarioId });
+      const tarefa = await Tarefa.create({ titulo, descricao, is_diaria, usuarioId });
       return res.status(201).json(tarefa);
     } catch (error) {
         console.error(error);
-
         return res.status(400).json({
           message: 'Erro ao criar tarefa',
           details: error.errors?.map(
@@ -24,12 +20,9 @@ module.exports = {
     }
   },
 
-  
-  // [GET] Listar todas as tarefas com suas subtarefas
   async index(req, res) {
     try {
       let where = {};
-
       if (req.user.role !== 'admin') {
         where.usuarioId = req.user.id;
       }
@@ -50,7 +43,6 @@ module.exports = {
     }
   },
 
-  // [GET - ID] Buscar uma tarefa específica com suas subtarefas
   async show(req, res) {
     try {
       const { id } = req.params;
@@ -76,11 +68,10 @@ module.exports = {
     }
   },
 
-  // [PUT]
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { titulo, descricao, concluida } = req.body;
+      const { titulo, descricao, concluida, is_diaria } = req.body;
       const tarefa = await Tarefa.findByPk(id);
 
       if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
@@ -89,14 +80,13 @@ module.exports = {
         return res.status(403).json({ error: 'Você não tem permissão para editar esta tarefa.' });
       }
 
-      await tarefa.update({ titulo, descricao, concluida });
+      await tarefa.update({ titulo, descricao, concluida, is_diaria });
       return res.json(tarefa);
     } catch (error) {
       return res.status(400).json({ error: 'Erro ao atualizar.' });
     }
   },
 
-  // [DELETE]
   async delete(req, res) {
     try {
       const { id } = req.params;

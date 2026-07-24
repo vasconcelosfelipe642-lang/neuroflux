@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middlewares/auth');
+
 const usuarioRoutes = require('./usuario.routes');
 const tarefaRoutes = require('./tarefa.routes');
 const subtarefasRoutes = require('./subtarefas.routes');
-// Rotas públicas
+// Importe o novo arquivo de rotas (ajuste o nome se você tiver salvo diferente, ex: auth.routes.js)
+const authRoutes = require('./authRoutes'); 
+
 router.use(usuarioRoutes); 
-// As rotas de usuário não exigem uma autenticação, pois são usadas para registro e login
+router.use(authRoutes); 
 router.use(verifyToken); 
-// Rotas protegidas por autenticação
 router.use(tarefaRoutes);
 router.use(subtarefasRoutes);
 

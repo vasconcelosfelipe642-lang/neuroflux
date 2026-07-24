@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    is_diaria: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     usuarioId: {
       type: DataTypes.INTEGER,
       allowNull: false

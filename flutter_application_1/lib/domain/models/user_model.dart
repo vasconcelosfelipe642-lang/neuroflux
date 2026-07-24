@@ -33,13 +33,13 @@ class UserModel {
 
   Color get avatarColor {
     const colors = [
-      Color(0xFFE8622A),
+      Color.fromARGB(255, 255, 143, 95),
       Color(0xFF6C63FF),
       Color(0xFF2EC4B6),
       Color(0xFFE71D36),
       Color(0xFF4CAF50),
       Color(0xFF2196F3),
-      Color(0xFFFF9800),
+      Color.fromARGB(255, 255, 143, 95),
     ];
     final index = nome.codeUnits.fold(0, (sum, c) => sum + c) % colors.length;
     return colors[index];

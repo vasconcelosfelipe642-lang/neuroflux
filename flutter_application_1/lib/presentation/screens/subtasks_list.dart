@@ -28,7 +28,22 @@ class SubtasksList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
-              InkWell(onTap: () => onToggleSubtask(s), child: Icon(s.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked, size: 18, color: s.isCompleted ? AppColors.primary : AppColors.textHint)),
+              SizedBox(
+                width: 34,
+                height: 34,
+                child: InkWell(
+                  onTap: () => onToggleSubtask(s),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      s.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+                      size: 22,
+                      color: s.isCompleted ? AppColors.primary : AppColors.textHint,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(width: AppSizes.sm),
               Expanded(child: InkWell(onTap: () => onToggleSubtask(s), child: Text(s.title, style: TextStyle(fontSize: 13, color: s.isCompleted ? AppColors.textSecondary : AppColors.textPrimary, decoration: s.isCompleted ? TextDecoration.lineThrough : null)))),
               IconButton(icon: Icon(Icons.edit, size: 16, color: AppColors.textHint), onPressed: () => onEditSubtask(s), constraints: const BoxConstraints(), padding: const EdgeInsets.all(4)),

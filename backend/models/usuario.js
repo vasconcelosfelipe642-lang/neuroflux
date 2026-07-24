@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
     senha: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    tokenRecuperacao: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    validadeTokenRecuperacao: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,

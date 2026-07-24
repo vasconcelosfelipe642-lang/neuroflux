@@ -126,7 +126,10 @@ class TasksScreenState extends State<TasksScreen> {
     final markingComplete = !task.isCompleted;
 
     setState(() {
-      _tasks = _tasks.map((t) => t.id == task.id ? t.copyWith(isCompleted: !t.isCompleted) : t).toList();
+      _tasks = _tasks
+          .map((t) =>
+              t.id == task.id ? t.copyWith(isCompleted: !t.isCompleted) : t)
+          .toList();
     });
 
     if (markingComplete) {
@@ -147,7 +150,8 @@ class TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  Future<void> _toggleSubtask(TaskModel parentTask, SubtaskModel subtask) async {
+  Future<void> _toggleSubtask(
+      TaskModel parentTask, SubtaskModel subtask) async {
     final markingComplete = !subtask.isCompleted;
     try {
       final updatedSub = await _subtarefaService.alternarConcluida(subtask);
@@ -205,7 +209,8 @@ class TasksScreenState extends State<TasksScreen> {
 
     if (result != null && result.isNotEmpty && result != task.title) {
       try {
-        final updated = await _tarefaService.atualizar(task.copyWith(title: result));
+        final updated =
+            await _tarefaService.atualizar(task.copyWith(title: result));
         setState(() {
           _tasks = _tasks.map((t) => t.id == task.id ? updated : t).toList();
         });
@@ -226,7 +231,8 @@ class TasksScreenState extends State<TasksScreen> {
 
     if (result != null && result.isNotEmpty) {
       try {
-        final novaSub = await _subtarefaService.criar(titulo: result, tarefaId: task.id);
+        final novaSub =
+            await _subtarefaService.criar(titulo: result, tarefaId: task.id);
 
         setState(() {
           _tasks = _tasks.map((t) {
@@ -262,11 +268,14 @@ class TasksScreenState extends State<TasksScreen> {
 
     if (result != null && result.isNotEmpty && result != subtask.title) {
       try {
-        final updatedSub = await _subtarefaService.atualizar(subtask.copyWith(title: result));
+        final updatedSub =
+            await _subtarefaService.atualizar(subtask.copyWith(title: result));
         setState(() {
           _tasks = _tasks.map((t) {
             if (t.id == parentTask.id) {
-              final newSubs = t.subtasks.map((s) => s.id == subtask.id ? updatedSub : s).toList();
+              final newSubs = t.subtasks
+                  .map((s) => s.id == subtask.id ? updatedSub : s)
+                  .toList();
               return t.copyWith(subtasks: newSubs);
             }
             return t;
@@ -287,7 +296,8 @@ class TasksScreenState extends State<TasksScreen> {
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
         title: Text(title, style: AppTextStyles.modalTitle),
         content: TextField(
           controller: controller,
@@ -295,18 +305,24 @@ class TasksScreenState extends State<TasksScreen> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(hintText: hint),
         ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: AppSizes.lg, vertical: AppSizes.md),
+        actionsPadding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.lg, vertical: AppSizes.md),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('CANCELAR', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold, fontSize: 13)),
+            child: Text('CANCELAR',
+                style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13)),
           ),
           const SizedBox(width: AppSizes.sm),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(110, 44),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
             ),
             child: Text(confirmLabel),
           ),
@@ -350,7 +366,10 @@ class TasksScreenState extends State<TasksScreen> {
   void _showError(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red.shade700, behavior: SnackBarBehavior.floating),
+      SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -376,75 +395,79 @@ class TasksScreenState extends State<TasksScreen> {
                     ),
                     const TasksScreenDivider(),
                     Expanded(
-                  child: _isLoading
-                      ? const SingleChildScrollView(
-                          padding: EdgeInsets.all(AppSizes.pagePadding),
-                          child: ShimmerTaskList(),
-                        )
-                      : RefreshIndicator(
-                          color: AppColors.primary,
-                          onRefresh: _loadTasks,
-                          child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(AppSizes.pagePadding),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                DayProgressCard(
-                                  completedTasks: _completedCount,
-                                  totalTasks: _tasks.length,
-                                  onDayCompleted: _onDayCompleted,
+                      child: _isLoading
+                          ? const SingleChildScrollView(
+                              padding: EdgeInsets.all(AppSizes.pagePadding),
+                              child: ShimmerTaskList(),
+                            )
+                          : RefreshIndicator(
+                              color: AppColors.primary,
+                              onRefresh: _loadTasks,
+                              child: SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding:
+                                    const EdgeInsets.all(AppSizes.pagePadding),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    DayProgressCard(
+                                      completedTasks: _completedCount,
+                                      totalTasks: _tasks.length,
+                                      onDayCompleted: _onDayCompleted,
+                                    ),
+                                    const SizedBox(height: AppSizes.md),
+                                    MotivationalMessage(
+                                      completedTasks: _completedCount,
+                                      totalTasks: _tasks.length,
+                                    ),
+                                    const SizedBox(height: AppSizes.lg),
+                                    Text(AppStrings.today,
+                                        style: AppTextStyles.sectionTitle),
+                                    const SizedBox(height: AppSizes.md),
+                                    _tasks.isEmpty
+                                        ? TaskListEmpty(
+                                            onCreateTask: _openNewTaskModal)
+                                        : TaskList(
+                                            tasks: _tasks,
+                                            onToggle: _toggleTask,
+                                            onToggleSubtask: _toggleSubtask,
+                                            onEdit: _editTaskTitle,
+                                            onEditSubtask: _editSubtask,
+                                            onAddSubtask: _addSubtaskToExisting,
+                                            onDelete: _deleteTask,
+                                          ),
+                                    const SizedBox(height: AppSizes.xl),
+                                    NewTaskButton(onPressed: _openNewTaskModal),
+                                  ],
                                 ),
-                                const SizedBox(height: AppSizes.md),
-                                MotivationalMessage(
-                                  completedTasks: _completedCount,
-                                  totalTasks: _tasks.length,
-                                ),
-                                const SizedBox(height: AppSizes.lg),
-                                Text(AppStrings.today, style: AppTextStyles.sectionTitle),
-                                const SizedBox(height: AppSizes.md),
-                                _tasks.isEmpty
-                                    ? TaskListEmpty(onCreateTask: _openNewTaskModal)
-                                    : TaskList(
-                                    tasks: _tasks,
-                                    onToggle: _toggleTask,
-                                    onToggleSubtask: _toggleSubtask,
-                                    onEdit: _editTaskTitle,
-                                    onEditSubtask: _editSubtask,
-                                    onAddSubtask: _addSubtaskToExisting,
-                                    onDelete: _deleteTask,
-                                  ),
-                                const SizedBox(height: AppSizes.xl),
-                                NewTaskButton(onPressed: _openNewTaskModal),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          IgnorePointer(
-            child: Align(
-              alignment: Alignment.center,
-              child: ConfettiWidget(
-                confettiController: _confettiController,
-                blastDirectionality: BlastDirectionality.explosive,
-                shouldLoop: false,
-                numberOfParticles: 32,
-                maxBlastForce: 22,
-                minBlastForce: 8,
-                gravity: 0.1,
-                colors: const [
-                  Color(0xFFE8622A),
-                  Color(0xFFFFB347),
-                  Colors.white,
-                ],
-                createParticlePath: (_) => Path()
-                  ..addOval(Rect.fromCircle(center: Offset.zero, radius: 4)),
               ),
-            ),
-          ),
+              IgnorePointer(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: ConfettiWidget(
+                    confettiController: _confettiController,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    shouldLoop: false,
+                    numberOfParticles: 32,
+                    maxBlastForce: 22,
+                    minBlastForce: 8,
+                    gravity: 0.1,
+                    colors: const [
+                      Color.fromARGB(255, 255, 143, 95),
+                      Color.fromARGB(255, 255, 143, 95),
+                      Colors.white,
+                    ],
+                    createParticlePath: (_) => Path()
+                      ..addOval(
+                          Rect.fromCircle(center: Offset.zero, radius: 4)),
+                  ),
+                ),
+              ),
             ],
           ),
         );
