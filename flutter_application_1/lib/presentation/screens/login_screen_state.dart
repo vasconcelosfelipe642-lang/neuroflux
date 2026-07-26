@@ -9,6 +9,7 @@ import '../../domain/models/login_form_model.dart';
 import '../widgets/auth_section_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/font_scale_button.dart';
+import '../widgets/forgot_password_dialog.dart';
 import '../widgets/login_button.dart';
 import '../widgets/neuroflux_logo.dart';
 import '../widgets/sign_up_prompt.dart';
@@ -60,87 +61,10 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _showForgotPasswordDialog() async {
-    final recoverEmailCtrl = TextEditingController();
-    final recoverFormKey = GlobalKey<FormState>();
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
-          titlePadding: const EdgeInsets.fromLTRB(
-              AppSizes.xl, AppSizes.xl, AppSizes.xl, AppSizes.sm),
-          contentPadding: const EdgeInsets.fromLTRB(
-              AppSizes.xl, 0, AppSizes.xl, AppSizes.xl),
-          title: Text(AppStrings.forgotPasswordTitle,
-              style: AppTextStyles.modalTitle),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(AppStrings.forgotPasswordSubtitle,
-                  style: AppTextStyles.authSubtitle),
-              const SizedBox(height: AppSizes.lg),
-              Form(
-                key: recoverFormKey,
-                child: TextFormField(
-                  controller: recoverEmailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: _validateEmail,
-                  decoration: InputDecoration(
-                    hintText: AppStrings.emailHint,
-                    filled: true,
-                    fillColor: AppColors.inputFill,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      borderSide: BorderSide(color: AppColors.primary),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actionsPadding: const EdgeInsets.fromLTRB(
-              AppSizes.lg, 0, AppSizes.lg, AppSizes.lg),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(
-                AppStrings.forgotPasswordCancel,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.lg, vertical: AppSizes.sm),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
-              ),
-              onPressed: () {
-                if (!(recoverFormKey.currentState?.validate() ?? false)) return;
-                Navigator.of(dialogContext).pop(true);
-              },
-              child: Text(AppStrings.forgotPasswordButton),
-            ),
-          ],
-        );
-      },
+    final confirmed = await ForgotPasswordDialog.show(
+      context,
+      validator: _validateEmail,
     );
-
-    recoverEmailCtrl.dispose();
 
     if (confirmed == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

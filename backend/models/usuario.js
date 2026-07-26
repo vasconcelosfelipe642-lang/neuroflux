@@ -21,22 +21,34 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true 
+        isEmail: true
       }
     },
-    role:{
-     type: DataTypes.ENUM('admin', 'user'),
-    defaultValue: 'user'
+    role: {
+      type: DataTypes.ENUM('admin', 'user'),
+      defaultValue: 'user'
     },
+
     senha: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+
+    resetPasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    resetPasswordExpires: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
+
   }, {
+  
     sequelize,
-    modelName: 'Usuario',    
-    tableName: 'Usuarios',  
-    paranoid: false,          
+    modelName: 'Usuario',
+    tableName: 'Usuarios',
+    paranoid: false,
     timestamps: true,
     hooks: {
       beforeCreate: async (usuario) => {
