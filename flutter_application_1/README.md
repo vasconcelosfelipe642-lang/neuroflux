@@ -11,4 +11,4 @@ flutter pub get
 flutter run -d windows
 ```
 
-A API deve estar rodando em `http://localhost:3000` (veja `backend/` na raiz do repositório).
+A API deve estar rodando em `http://18.219.227.74:3000` (veja `backend/` na raiz do repositório).

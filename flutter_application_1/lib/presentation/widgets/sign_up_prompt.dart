@@ -23,7 +23,7 @@ class SignUpPrompt extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
+            child: const Text(AppStrings.signUpLink, style: AppTextStyles.authLink),
           ),
         ],
       ),

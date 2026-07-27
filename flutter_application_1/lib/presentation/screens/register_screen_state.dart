@@ -95,7 +95,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: NeuroFluxLogo(size: 72, showTagline: false),
                 ),
                 const SizedBox(height: 28),
-                AuthSectionHeader(
+                const AuthSectionHeader(
                   title: AppStrings.registerTitle,
                   subtitle: AppStrings.registerSubtitle,
                 ),

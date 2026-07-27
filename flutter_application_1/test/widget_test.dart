@@ -6,7 +6,7 @@ void main() {
   testWidgets('NeuroFlux app inicia', (WidgetTester tester) async {
     await tester.pumpWidget(
       ThemeScope(
-        child: NeuroFluxApp(),
+        child: const NeuroFluxApp(),
       ),
     );
     await tester.pump();

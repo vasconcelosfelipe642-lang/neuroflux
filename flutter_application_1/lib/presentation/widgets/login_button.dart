@@ -22,7 +22,7 @@ class LoginButton extends StatelessWidget {
                 color: Colors.white,
               ),
             )
-          : Text(AppStrings.loginButton, style: AppTextStyles.fabLabel),
+          : const Text(AppStrings.loginButton, style: AppTextStyles.fabLabel),
     );
   }
 }

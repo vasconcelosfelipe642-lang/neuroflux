@@ -20,7 +20,7 @@ class AdminBanButton extends StatelessWidget {
           color: AppColors.dangerLight,
           borderRadius: BorderRadius.circular(AppSizes.radiusFull),
         ),
-        child: Text(AppStrings.adminBan, style: AppTextStyles.adminDangerButton),
+        child: const Text(AppStrings.adminBan, style: AppTextStyles.adminDangerButton),
       ),
     );
   }

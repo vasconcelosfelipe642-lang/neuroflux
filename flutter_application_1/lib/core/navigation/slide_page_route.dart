@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SlidePageRoute<T> extends PageRouteBuilder<T> {
-  SlidePageRoute({required Widget child, RouteSettings? settings})
+  SlidePageRoute({required Widget child, super.settings})
       : super(
-          settings: settings,
           pageBuilder: (context, animation, secondaryAnimation) => child,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1, 0);
