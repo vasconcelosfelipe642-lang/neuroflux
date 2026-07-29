@@ -4,8 +4,10 @@ import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/errors/app_exception.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/theme_scope.dart';
 import '../../domain/models/register_form_model.dart';
+import '../../domain/models/user_model.dart';
 import '../widgets/auth_section_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/login_prompt.dart';
@@ -27,6 +29,7 @@ class RegisterScreenState extends State<RegisterScreen> {
   final _confirmFocus = FocusNode();
 
   bool _isLoading = false;
+  String _selectedRole = UserRoles.common;
 
   @override
   void dispose() {
@@ -50,6 +53,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
         confirmPassword: _confirmCtrl.text,
+        role: _selectedRole,
       ));
     } on AppException catch (e) {
       if (mounted) {
@@ -95,7 +99,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: NeuroFluxLogo(size: 72, showTagline: false),
                 ),
                 const SizedBox(height: 28),
-                AuthSectionHeader(
+                const AuthSectionHeader(
                   title: AppStrings.registerTitle,
                   subtitle: AppStrings.registerSubtitle,
                 ),
@@ -106,8 +110,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                   controller: _nameCtrl,
                   focusNode: _nameFocus,
                   keyboardType: TextInputType.name,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Informe seu nome' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Informe seu nome'
+                      : null,
                   onEditingComplete: () => _emailFocus.requestFocus(),
                 ),
                 const SizedBox(height: AppSizes.lg),
@@ -119,6 +124,29 @@ class RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: _validateEmail,
                   onEditingComplete: () => _passwordFocus.requestFocus(),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                Text(AppStrings.userTypeLabel, style: AppTextStyles.fieldLabel),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedRole,
+                  decoration: const InputDecoration(
+                    hintText: AppStrings.userTypeHint,
+                  ),
+                  items: UserRoles.publicSignUpRoles
+                      .map(
+                        (role) => DropdownMenuItem(
+                          value: role,
+                          child: Text(UserRoles.labelOf(role)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _isLoading
+                      ? null
+                      : (value) {
+                          if (value == null) return;
+                          setState(() => _selectedRole = value);
+                        },
                 ),
                 const SizedBox(height: AppSizes.lg),
                 AuthTextField(

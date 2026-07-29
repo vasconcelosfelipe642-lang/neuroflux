@@ -22,7 +22,7 @@ class RegisterButton extends StatelessWidget {
                 color: Colors.white,
               ),
             )
-          : Text(AppStrings.registerButton, style: AppTextStyles.fabLabel),
+          : const Text(AppStrings.registerButton, style: AppTextStyles.fabLabel),
     );
   }
 }

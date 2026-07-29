@@ -57,7 +57,7 @@ class AdminUsersScreenState extends State<AdminUsersScreen> {
         _activeUsers = allUsers
             .where((u) =>
                 u.id != widget.admin.id &&
-                u.role != 'admin' &&
+                !u.isAdmin &&
                 !banned.any((b) => b.id == u.id))
             .toList();
         _tasks = results[2] as List<TaskModel>;
