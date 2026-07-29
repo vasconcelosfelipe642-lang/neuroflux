@@ -209,7 +209,7 @@ class AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const Spacer(),
             GestureDetector(
               onTap: _openUsers,
-              child: Text(AppStrings.adminSeeAll, style: AppTextStyles.adminLink),
+              child: const Text(AppStrings.adminSeeAll, style: AppTextStyles.adminLink),
             ),
           ],
         ),

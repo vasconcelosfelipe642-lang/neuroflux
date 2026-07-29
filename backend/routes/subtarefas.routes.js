@@ -1,7 +1,7 @@
 const express = require('express');
 console.log('Subtarefas routes carregadas');
 const router = express.Router();
-const subtarefaController = require('../controllers/subtarefaController');
+const subtarefaController = require('../controllers/SubtarefaController');
 const { verifyToken } = require('../middlewares/auth');
 
 router.post('/subtarefas',verifyToken,subtarefaController.store);
