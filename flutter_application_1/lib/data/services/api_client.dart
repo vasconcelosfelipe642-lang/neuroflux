@@ -10,8 +10,25 @@ class ApiClient {
   ApiClient._();
   static final instance = ApiClient._();
 
-  // Troque pela URL de produção via .env quando for ao ar
-  static const _baseUrl = 'http://localhost:3000';
+static String get _baseUrl {
+    const configuredUrl = String.fromEnvironment('API_BASE_URL');
+    if (configuredUrl.isNotEmpty) {
+      return configuredUrl.endsWith('/')
+          ? configuredUrl.substring(0, configuredUrl.length - 1)
+          : configuredUrl;
+    }
+
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000';
+    }
+
+    if (Platform.isIOS) {
+      return 'http://127.0.0.1:3000';
+    }
+
+    // Fallback: servidor de produção na nuvem
+    return 'http://18.219.227.74:3000';
+  }
 
   String? _token;
 
@@ -23,8 +40,7 @@ class ApiClient {
 
   Map<String, String> get _headers => {
         HttpHeaders.contentTypeHeader: 'application/json',
-        if (_token != null)
-          HttpHeaders.authorizationHeader: 'Bearer $_token',
+        if (_token != null) HttpHeaders.authorizationHeader: 'Bearer $_token',
       };
 
   Uri _uri(String path) => Uri.parse('$_baseUrl$path');
@@ -76,13 +92,17 @@ class ApiClient {
     return _handleList(res);
   }
 
-  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
-    final res = await http.post(_uri(path), headers: _headers, body: jsonEncode(body));
+  Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.post(_uri(path), headers: _headers, body: jsonEncode(body));
     return _handleMap(res);
   }
 
-  Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
-    final res = await http.put(_uri(path), headers: _headers, body: jsonEncode(body));
+  Future<Map<String, dynamic>> put(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.put(_uri(path), headers: _headers, body: jsonEncode(body));
     return _handleMap(res);
   }
 

@@ -18,5 +18,7 @@ router.get('/usuarios', verifyToken, usuarioController.index);
 router.get('/usuarios/:id', verifyToken, usuarioController.show);
 router.put('/usuarios/:id', verifyToken, usuarioController.update);
 router.delete('/usuarios/:id', verifyToken,isAdmin, usuarioController.delete);
+router.post('/usuarios/forgot-password', usuarioController.forgotPassword);
+router.post('/usuarios/reset-password', usuarioController.resetPassword);
 
 module.exports = router;

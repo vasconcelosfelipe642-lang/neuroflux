@@ -23,7 +23,7 @@ class LoginPrompt extends StatelessWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(AppStrings.loginLink, style: AppTextStyles.authLink),
+            child: const Text(AppStrings.loginLink, style: AppTextStyles.authLink),
           ),
         ],
       ),

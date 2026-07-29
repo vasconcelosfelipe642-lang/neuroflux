@@ -33,7 +33,7 @@ class NeuroFluxApp extends StatelessWidget {
         final systemScale = MediaQuery.textScalerOf(context).scale(1);
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(systemScale * AppSizes.fontScale),
+            textScaler: TextScaler.linear(systemScale * themeProvider.fontScale),
           ),
           child: child ?? const SizedBox.shrink(),
         );

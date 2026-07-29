@@ -44,10 +44,39 @@ class AuthService {
         'email': email,
         'senha': password,
       });
+
       // Backend retorna { message, token }
       final token = json['token'] as String;
       await _persistToken(token);
       return _decodeUserFromToken(token);
+    } on SocketException {
+      throw AppException.network();
+    }
+  }
+
+  /// POST /usuarios/forgot-password → { email } → dispara e-mail com código
+  Future<void> forgotPassword({required String email}) async {
+    try {
+      await _client.post('/usuarios/forgot-password', {
+        'email': email,
+      });
+    } on SocketException {
+      throw AppException.network();
+    }
+  }
+
+  /// POST /usuarios/reset-password → { email, token, novaSenha }
+  Future<void> resetPassword({
+    required String email,
+    required String token,
+    required String novaSenha,
+  }) async {
+    try {
+      await _client.post('/usuarios/reset-password', {
+        'email': email,
+        'token': token,
+        'novaSenha': novaSenha,
+      });
     } on SocketException {
       throw AppException.network();
     }
@@ -90,7 +119,7 @@ class AuthService {
     return UserModel(
       id: map['id'].toString(),
       nome: map['nome'] as String? ?? '',
-      email: '',  // não vem no JWT — ok para uso inicial
+      email: '', // não vem no JWT — ok para uso inicial
       role: map['role'] as String? ?? 'user',
     );
   }

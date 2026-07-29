@@ -40,6 +40,12 @@ abstract final class AppStrings {
   static const loginTitle = 'Bem-vindo de volta';
   static const loginSubtitle = 'Entre para continuar sua jornada';
   static const loginButton = 'Entrar';
+  static const forgotPasswordLink = 'Esqueceu sua senha ?';
+  static const forgotPasswordTitle = 'Recuperar senha';
+  static const forgotPasswordSubtitle = 'Informe seu e-mail para receber instruções de recuperação.';
+  static const forgotPasswordButton = 'Enviar';
+  static const forgotPasswordCancel = 'Cancelar';
+  static const forgotPasswordSuccess = 'Se este e-mail estiver cadastrado, enviaremos instruções para recuperação.';
   static const noAccount = 'Não tem uma conta? ';
   static const signUpLink = 'Cadastre-se';
 

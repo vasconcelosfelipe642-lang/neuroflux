@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Subtarefa',
     tableName: 'Subtarefas',
-    paranoid: true,
+    paranoid: false,
   });
   return Subtarefa;
 };

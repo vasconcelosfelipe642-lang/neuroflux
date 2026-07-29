@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/theme_scope.dart';
 import '../../domain/models/login_form_model.dart';
 import '../widgets/auth_section_header.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/font_scale_button.dart';
+import '../widgets/forgot_password_dialog.dart';
 import '../widgets/login_button.dart';
 import '../widgets/neuroflux_logo.dart';
 import '../widgets/sign_up_prompt.dart';
+import '../widgets/theme_toggle_button.dart';
 import 'login_screen.dart';
 
 class LoginScreenState extends State<LoginScreen> {
@@ -46,12 +50,33 @@ class LoginScreenState extends State<LoginScreen> {
             backgroundColor: Colors.red.shade700,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppSizes.lg),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
           ),
         );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showForgotPasswordDialog() async {
+    final confirmed = await ForgotPasswordDialog.show(
+      context,
+      validator: _validateEmail,
+    );
+
+    if (confirmed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(AppStrings.forgotPasswordSuccess),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(AppSizes.lg),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd)),
+        ),
+      );
     }
   }
 
@@ -69,10 +94,22 @@ class LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      FontScaleButton(),
+                      ThemeToggleButton(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 const Center(child: NeuroFluxLogo(size: 90)),
                 const SizedBox(height: 40),
-                AuthSectionHeader(
+                const AuthSectionHeader(
                   title: AppStrings.loginTitle,
                   subtitle: AppStrings.loginSubtitle,
                 ),
@@ -97,10 +134,31 @@ class LoginScreenState extends State<LoginScreen> {
                   validator: _validatePassword,
                   onEditingComplete: _submit,
                 ),
-                const SizedBox(height: AppSizes.xxl),
+                const SizedBox(height: AppSizes.xl),
                 LoginButton(isLoading: _isLoading, onPressed: _submit),
                 const SizedBox(height: AppSizes.xl),
                 SignUpPrompt(onTap: widget.onNavigateToRegister),
+                const SizedBox(height: AppSizes.sm),
+                Center(
+                  child: TextButton(
+                    onPressed: _showForgotPasswordDialog,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSizes.xs,
+                        horizontal: AppSizes.sm,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      AppStrings.forgotPasswordLink,
+                      style: AppTextStyles.authBodySmall.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppSizes.xxl),
               ],
             ),

@@ -35,12 +35,17 @@ module.exports = (sequelize, DataTypes) => {
     usuarioId: {
       type: DataTypes.INTEGER,
       allowNull: false
-    }
+    },
+    concluidaEm: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'concluida_em'
+    },
   }, {
     sequelize,
     modelName: 'Tarefa',
     tableName: 'Tarefas',
-    paranoid: true,
+    paranoid: false,
     hooks: {
       beforeDestroy: async (tarefa, options) => {
         await sequelize.models.Subtarefa.destroy({
