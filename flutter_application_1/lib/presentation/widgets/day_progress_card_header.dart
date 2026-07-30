@@ -9,14 +9,14 @@ class DayProgressCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       children: [
-        const Icon(
+        Icon(
           Icons.track_changes_rounded,
           color: Colors.white,
           size: AppSizes.iconMd,
         ),
-        const SizedBox(width: AppSizes.sm),
+        SizedBox(width: AppSizes.sm),
         Text(AppStrings.dayProgress, style: AppTextStyles.bigCardTitle),
       ],
     );

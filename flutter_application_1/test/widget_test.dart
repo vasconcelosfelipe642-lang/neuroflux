@@ -7,7 +7,7 @@ import 'package:flutter_application_1/presentation/screens/admin/admin_stat_box.
 void main() {
   testWidgets('NeuroFlux app inicia', (WidgetTester tester) async {
     await tester.pumpWidget(
-      ThemeScope(
+      const ThemeScope(
         child: NeuroFluxApp(),
       ),
     );

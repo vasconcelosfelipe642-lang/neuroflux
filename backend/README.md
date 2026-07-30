@@ -536,3 +536,17 @@ O objetivo da API é demonstrar:
 ## Licença
 
 Projeto acadêmico — consulte os autores da disciplina/instituição para termos de uso e distribuição.
+
+## Integrantes
+
+**Equipe:** Neurotrix  
+**Aplicativo:** NeuroFlux
+
+| Nome | Matrícula |
+|------|-----------|
+| Felipe Gabriel dos Santos Vasconcelos | 16036165 |
+| José Guilherme da Silva Nascimento | 16034504 |
+| Yuri Cruz Brandão | 16036094 |
+| Jorge Felipe Trindade Mendonça | 16035609 |
+| Gabriel David Vacirca | 16035571 |
+| Brigitte Lara Rodrigues Pereira da Silva Dantas | 16035243 |

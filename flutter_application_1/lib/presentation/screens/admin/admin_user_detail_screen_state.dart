@@ -196,8 +196,10 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                Text('● ${AppStrings.adminActive}',
-                    style: AppTextStyles.adminStatusActive),
+                const Text(
+                  '● ${AppStrings.adminActive}',
+                  style: AppTextStyles.adminStatusActive,
+                ),
               ],
             ),
           ],
@@ -268,7 +270,7 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             child: ElevatedButton.icon(
               onPressed: _confirmPromote,
               icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
-              label: Text(AppStrings.adminPromoteToAdmin),
+              label: const Text(AppStrings.adminPromoteToAdmin),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(

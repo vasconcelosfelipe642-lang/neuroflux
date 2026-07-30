@@ -72,7 +72,7 @@ class LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 48),
                 const Center(child: NeuroFluxLogo(size: 90)),
                 const SizedBox(height: 40),
-                AuthSectionHeader(
+                const AuthSectionHeader(
                   title: AppStrings.loginTitle,
                   subtitle: AppStrings.loginSubtitle,
                 ),
