@@ -22,25 +22,35 @@ class AdminStatBox extends StatelessWidget {
     ThemeScope.watch(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSizes.lg, horizontal: AppSizes.sm),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppSizes.lg, horizontal: AppSizes.sm),
       decoration: BoxDecoration(
-        color: highlight ? AppColors.primaryLightTint : AppColors.surface,
+        color: highlight ? AppColors.primary : AppColors.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
-          Text(
-            value,
-            style: highlight
-                ? AppTextStyles.adminHighlightPercent
-                : AppTextStyles.adminStatNumber.copyWith(fontSize: 22),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+              style: highlight
+                  ? AppTextStyles.adminHighlightPercent.copyWith(
+                      color: Colors.white,
+                    )
+                  : AppTextStyles.adminStatNumber.copyWith(fontSize: 22),
+            ),
           ),
           const SizedBox(height: AppSizes.xs),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: AppTextStyles.adminStatLabel,
+            style: highlight
+                ? AppTextStyles.adminStatLabel.copyWith(color: Colors.white70)
+                : AppTextStyles.adminStatLabel,
           ),
         ],
       ),

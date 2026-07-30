@@ -15,10 +15,15 @@ class TarefaService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// GET /tarefas → retorna tarefas do usuário autenticado com subtarefas
-  Future<List<TaskModel>> listar() async {
+  /// GET /tarefas → retorna tarefas do usuário autenticado com subtarefas.
+  /// Quando é chamado pelo painel admin, pode receber um userId para buscar
+  /// as tarefas de um usuário específico em modo de métricas.
+  Future<List<TaskModel>> listar({String? userId}) async {
     try {
-      final list = await _client.getList('/tarefas');
+      final query = userId == null || userId.isEmpty
+          ? ''
+          : '?userId=${Uri.encodeQueryComponent(userId)}';
+      final list = await _client.getList('/tarefas$query');
       return list
           .map((j) => TaskModel.fromJson(j as Map<String, dynamic>))
           .toList();

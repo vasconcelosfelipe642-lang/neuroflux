@@ -24,6 +24,7 @@ class ApiClient {
 
   Map<String, String> get _headers => {
         HttpHeaders.contentTypeHeader: 'application/json',
+        'x-app-client': 'true',
         if (_token != null) HttpHeaders.authorizationHeader: 'Bearer $_token',
       };
 
@@ -105,6 +106,16 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.post(_uri(path), headers: _headers, body: jsonEncode(body));
+    return _handleMap(res);
+  }
+
+  Future<Map<String, dynamic>> put(
+      String path, Map<String, dynamic> body) async {
+    final res =
+        await http.put(_uri(path), headers: _headers, body: jsonEncode(body));
     String path,
     Map<String, dynamic> body, {
     bool retryOnUnauthorized = true,

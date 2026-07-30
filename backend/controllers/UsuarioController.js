@@ -1,3 +1,18 @@
+const { Usuario, Tarefa, Subtarefa } = require('../models');
+const bcrypt = require('bcrypt'); 
+const jwt = require('jsonwebtoken'); 
+require('dotenv').config(); 
+
+function generateAccessToken(usuario) {
+  return jwt.sign(
+    { 
+      id: usuario.id, 
+      nome: usuario.nome, 
+      role: usuario.role 
+    }, 
+    process.env.JWT_SECRET, 
+    { expiresIn: '1h' } 
+  );
 'use strict';
 
 const bcrypt = require('bcryptjs');
@@ -216,6 +231,20 @@ module.exports = {
       const { id } = req.params;
       const usuario = await Usuario.findByPk(id);
 
+      const wasUserRole = usuario.role === 'user';
+      const isPromotingToAdmin = req.body?.role === 'admin' && wasUserRole;
+
+      await usuario.update(req.body);
+
+      if (isPromotingToAdmin) {
+        await Tarefa.destroy({
+          where: {
+            usuarioId: usuario.id
+          }
+        });
+      }
+
+      return res.json({ message: 'Dados atualizados com sucesso' });
       if (!usuario) {
         return res.status(404).json({ error: 'Usuario nao encontrado' });
       }
