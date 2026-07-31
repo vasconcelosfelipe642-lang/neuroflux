@@ -36,11 +36,13 @@ class TarefaService extends ChangeNotifier {
   Future<TaskModel> criar({
     required String titulo,
     String? descricao,
+    bool? isDaily = false,
   }) async {
     try {
       final json = await _client.post('/tarefas', {
         'titulo': titulo,
         if (descricao != null && descricao.isNotEmpty) 'descricao': descricao,
+        'is_diaria': isDaily,
       });
       final task = TaskModel.fromJson(json);
       notifyListeners();

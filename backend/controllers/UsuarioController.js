@@ -1,22 +1,7 @@
-const { Usuario, Tarefa, Subtarefa } = require('../models');
-const bcrypt = require('bcrypt'); 
-const jwt = require('jsonwebtoken'); 
-require('dotenv').config(); 
-
-function generateAccessToken(usuario) {
-  return jwt.sign(
-    { 
-      id: usuario.id, 
-      nome: usuario.nome, 
-      role: usuario.role 
-    }, 
-    process.env.JWT_SECRET, 
-    { expiresIn: '1h' } 
-  );
 'use strict';
 
 const bcrypt = require('bcryptjs');
-const { Usuario } = require('../models');
+const { Usuario, Tarefa } = require('../models');
 const {
   USER_ROLES,
   normalizeRole,
@@ -231,20 +216,6 @@ module.exports = {
       const { id } = req.params;
       const usuario = await Usuario.findByPk(id);
 
-      const wasUserRole = usuario.role === 'user';
-      const isPromotingToAdmin = req.body?.role === 'admin' && wasUserRole;
-
-      await usuario.update(req.body);
-
-      if (isPromotingToAdmin) {
-        await Tarefa.destroy({
-          where: {
-            usuarioId: usuario.id
-          }
-        });
-      }
-
-      return res.json({ message: 'Dados atualizados com sucesso' });
       if (!usuario) {
         return res.status(404).json({ error: 'Usuario nao encontrado' });
       }
@@ -258,12 +229,26 @@ module.exports = {
         });
       }
 
+      // verifica se está promovendo para admin
+      const wasCommon = usuario.role === USER_ROLES.COMMON;
+      const willBecomeAdmin = payload.role === USER_ROLES.ADMIN;
+
       const { payload, error } = buildUserUpdatePayload(req.body, canUpdateRole);
       if (error) {
         return res.status(error.status).json({ error: error.message });
       }
 
       await usuario.update(payload);
+
+      // apagar tarefas do usuário
+      if (wasCommon && willBecomeAdmin) {
+        await Tarefa.destroy({
+          where: {
+            usuarioId: usuario.id
+          }
+        });
+      }
+
       return res.json(toSafeUser(usuario));
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {

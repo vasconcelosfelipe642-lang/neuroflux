@@ -7,12 +7,14 @@ import 'package:flutter_application_1/presentation/screens/admin/admin_stat_box.
 void main() {
   testWidgets('NeuroFlux app inicia', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ThemeScope(
-        child: NeuroFluxApp(),
+      ThemeScope(
+        child: const NeuroFluxApp(),
       ),
     );
     await tester.pump();
     expect(find.byType(NeuroFluxApp), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('AdminStatBox keeps the percentage visible',
