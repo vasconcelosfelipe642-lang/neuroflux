@@ -37,16 +37,18 @@ class AdminService {
     }
   }
 
-  Future<List<TaskModel>> listarTodasTarefas() => _tarefaService.listar();
+  Future<List<TaskModel>> listarTodasTarefas({String? userId}) =>
+      _tarefaService.listar(userId: userId);
 
-  Future<List<UserModel>> listarBanidos() => TokenStorageService.getBannedUsers();
+  Future<List<UserModel>> listarBanidos() =>
+      TokenStorageService.getBannedUsers();
 
   Future<AdminStatsModel> buscarEstatisticas() async {
     final users = await listarUsuarios();
     final tasks = await listarTodasTarefas();
     final banned = await listarBanidos();
-    final registeredUsers =
-        users.where((u) => u.role != 'admin').length;
+    final registeredUsers = users.where((u) => u.role != 'admin').length;
+    final registeredUsers = users.where((u) => !u.isAdmin).length;
     return AdminStatsModel(
       totalUsers: registeredUsers,
       totalTasks: tasks.length,
@@ -72,7 +74,7 @@ class AdminService {
         id: user.id,
         nome: user.nome,
         email: user.email,
-        role: 'admin',
+        role: UserRoles.admin,
       );
     } on SocketException {
       throw AppException.network();

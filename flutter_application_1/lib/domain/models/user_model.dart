@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 
+abstract final class UserRoles {
+  static const common = 'common';
+  static const child = 'child';
+  static const guardian = 'guardian';
+  static const admin = 'admin';
+
+  static const publicSignUpRoles = [common, child, guardian];
+
+  static String normalize(String? role) {
+    final value = role?.trim().toLowerCase();
+    return switch (value) {
+      'user' => common,
+      'comum' => common,
+      'crianca' => child,
+      'responsavel' => guardian,
+      'adm' => admin,
+      String value when value.isNotEmpty => value,
+      _ => common,
+    };
+  }
+
+  static String labelOf(String role) {
+    return switch (normalize(role)) {
+      common => 'Comum',
+      child => 'Crianca',
+      guardian => 'Responsavel',
+      admin => 'Administrador',
+      _ => 'Comum',
+    };
+  }
+}
+
 class UserModel {
   final String id;
   final String nome;
@@ -18,7 +50,7 @@ class UserModel {
       id: json['id'].toString(),
       nome: json['nome'] as String,
       email: json['email'] as String? ?? '',
-      role: json['role'] as String? ?? 'user',
+      role: UserRoles.normalize(json['role'] as String?),
     );
   }
 
@@ -29,7 +61,8 @@ class UserModel {
         'role': role,
       };
 
-  bool get isAdmin => role == 'admin';
+  bool get isAdmin => role == UserRoles.admin;
+  String get roleLabel => UserRoles.labelOf(role);
 
   Color get avatarColor {
     const colors = [

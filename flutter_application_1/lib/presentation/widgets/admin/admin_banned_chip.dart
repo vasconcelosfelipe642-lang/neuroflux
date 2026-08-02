@@ -16,7 +16,11 @@ class AdminBannedChip extends StatelessWidget {
         color: AppColors.muted,
         borderRadius: BorderRadius.circular(AppSizes.radiusFull),
       ),
-      child: const Text(AppStrings.adminBanned, style: AppTextStyles.adminStatusBanned),
+      
+      child: const Text(
+        AppStrings.adminBanned,
+        style: AppTextStyles.adminStatusBanned,
+      ),
     );
   }
 }

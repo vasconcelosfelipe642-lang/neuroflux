@@ -54,6 +54,8 @@ abstract final class AppStrings {
   static const registerSubtitle = 'Comece sua jornada com o NeuroFlux';
   static const nameLabel = 'Nome completo';
   static const nameHint = 'Ex: Maria Silva';
+  static const userTypeLabel = 'Tipo de usuario';
+  static const userTypeHint = 'Selecione o tipo de conta';
   static const confirmPasswordLabel = 'Confirmar senha';
   static const confirmPasswordHint = '••••••••';
   static const registerButton = 'Criar conta';

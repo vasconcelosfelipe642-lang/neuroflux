@@ -59,7 +59,8 @@ class BanUserDialog extends StatelessWidget {
               child: const Icon(Icons.block, color: AppColors.danger, size: 28),
             ),
             const SizedBox(height: AppSizes.lg),
-            Text(AppStrings.adminBanTitle, style: AppTextStyles.adminModalTitle),
+            Text(AppStrings.adminBanTitle,
+                style: AppTextStyles.adminModalTitle),
             const SizedBox(height: AppSizes.lg),
             Container(
               padding: const EdgeInsets.all(AppSizes.md),
@@ -101,8 +102,10 @@ class BanUserDialog extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Text(AppStrings.adminActive,
-                          style: AppTextStyles.adminStatusActive),
+                      const Text(
+                        AppStrings.adminActive,
+                        style: AppTextStyles.adminStatusActive,
+                      ),
                     ],
                   ),
                 ],

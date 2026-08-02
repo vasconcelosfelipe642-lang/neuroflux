@@ -50,6 +50,7 @@ class AuthGateState extends State<AuthGate> {
       nome: form.name,
       email: form.email,
       password: form.password,
+      role: form.role,
     );
     if (!mounted) return;
     setState(() {

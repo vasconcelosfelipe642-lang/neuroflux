@@ -1,31 +1,35 @@
-const jwt = require('jsonwebtoken');
+'use strict';
+
+const { verifyAccessToken } = require('../services/tokenService');
+const { isAdminRole } = require('../constants/userRoles');
 
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; 
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : null;
 
-  if (token == null) {
-    return res.status(401).json({ message: 'Não autorizado' }); 
+  if (!token) {
+    return res.status(401).json({ message: 'Nao autorizado' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Token inválido ou expirado' }); 
-    }
-
-    req.user = user; 
-    next(); 
-  });
+  try {
+    req.user = verifyAccessToken(token);
+    return next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Token invalido ou expirado' });
+  }
 };
 
 const isAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
+  if (!req.user || !isAdminRole(req.user.role)) {
     return res.status(403).json({ message: 'Acesso negado. Apenas administradores.' });
   }
-  next();
+
+  return next();
 };
 
 module.exports = {
   verifyToken,
-  isAdmin
+  isAdmin,
 };

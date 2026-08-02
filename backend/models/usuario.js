@@ -1,16 +1,19 @@
 'use strict';
+
 const bcrypt = require('bcryptjs');
 const { Model } = require('sequelize');
+const { ROLE_VALUES, USER_ROLES, normalizeRole } = require('../constants/userRoles');
 
 module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
     static associate(models) {
       this.hasMany(models.Tarefa, {
         foreignKey: 'usuarioId',
-        as: 'tarefas'
+        as: 'tarefas',
       });
     }
   }
+
   Usuario.init({
     nome: {
       type: DataTypes.STRING,
@@ -21,17 +24,18 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true
-      }
+        isEmail: true,
+      },
     },
     role: {
-      type: DataTypes.ENUM('admin', 'user'),
-      defaultValue: 'user'
+      type: DataTypes.ENUM(...ROLE_VALUES),
+      allowNull: false,
+      defaultValue: USER_ROLES.COMMON,
     },
 
     senha: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     
     resetPasswordToken: {
@@ -42,7 +46,16 @@ module.exports = (sequelize, DataTypes) => {
 
       type: DataTypes.DATE,
       allowNull: true
-    }
+    },
+
+    refreshTokenHash: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+    },
+    refreshTokenExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
 
   }, {
 
@@ -53,16 +66,20 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     hooks: {
       beforeCreate: async (usuario) => {
+        usuario.role = normalizeRole(usuario.role);
         if (usuario.senha) {
           usuario.senha = await bcrypt.hash(usuario.senha, 10);
         }
       },
       beforeUpdate: async (usuario) => {
+        if (usuario.changed('role')) {
+          usuario.role = normalizeRole(usuario.role);
+        }
         if (usuario.changed('senha')) {
           usuario.senha = await bcrypt.hash(usuario.senha, 10);
         }
-      }
-    }
+      },
+    },
   });
 
   return Usuario;

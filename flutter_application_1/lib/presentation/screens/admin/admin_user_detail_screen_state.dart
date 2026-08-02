@@ -14,7 +14,6 @@ import '../../../domain/models/user_model.dart';
 import '../../widgets/admin/admin_header.dart';
 import '../../widgets/admin/ban_user_dialog.dart';
 import '../../widgets/admin/promote_user_dialog.dart';
-import 'admin_activity_row.dart';
 import 'admin_stat_box.dart';
 import 'admin_user_detail_screen.dart';
 
@@ -35,17 +34,28 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
     setState(() => _isLoading = true);
     try {
       final user = await _adminService.buscarUsuario(widget.userId);
-      final allTasks = await _adminService.listarTodasTarefas();
+      final allTasks =
+          await _adminService.listarTodasTarefas(userId: widget.userId);
       if (!mounted) return;
+      final filteredTasks = _adminService
+          .tarefasDoUsuario(allTasks, widget.userId)
+          .where((task) => task.usuarioId == widget.userId)
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       setState(() {
         _user = user;
-        _tasks = _adminService.tarefasDoUsuario(allTasks, widget.userId)
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        _tasks = filteredTasks;
         _isLoading = false;
       });
     } on AppException catch (e) {
-      _showError(e.message);
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        _showError(e.message);
+        setState(() {
+          _user = null;
+          _tasks = [];
+          _isLoading = false;
+        });
+      }
     } finally {
       if (mounted && _isLoading) setState(() => _isLoading = false);
     }
@@ -91,7 +101,8 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -113,7 +124,8 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                   onBack: () => Navigator.pop(context),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.pagePadding),
                   child: Text(
                     AppStrings.adminManageUsers,
                     style: AppTextStyles.adminScreenTitle,
@@ -133,7 +145,13 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
   }
 
   Widget _buildContent() {
-    final user = _user!;
+    final user = _user;
+    if (user == null) {
+      return const Center(
+        child: Text('Não foi possível carregar os dados do usuário.'),
+      );
+    }
+
     final stats = _adminService.statsDoUsuario(_tasks);
 
     return ListView(
@@ -159,7 +177,8 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
               ),
             ),
             const SizedBox(height: AppSizes.md),
-            Text(user.nome, style: AppTextStyles.adminScreenTitle.copyWith(fontSize: 20)),
+            Text(user.nome,
+                style: AppTextStyles.adminScreenTitle.copyWith(fontSize: 20)),
             if (user.email.isNotEmpty) ...[
               const SizedBox(height: AppSizes.xs),
               Text(user.email, style: AppTextStyles.adminUserMeta),
@@ -177,37 +196,58 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text('● ${AppStrings.adminActive}',
-                    style: AppTextStyles.adminStatusActive),
+                
+                    const Text(
+                      '• ${AppStrings.adminActive}',
+                      style: AppTextStyles.adminStatusActive,
+                    ),
               ],
             ),
           ],
         ),
         const SizedBox(height: AppSizes.xl),
-        Row(
-          children: [
-            Expanded(
-              child: AdminStatBox(
-                value: '${stats.created}',
-                label: AppStrings.adminTasksCreatedLabel,
-              ),
-            ),
-            const SizedBox(width: AppSizes.sm),
-            Expanded(
-              child: AdminStatBox(
-                value: '${stats.completed}',
-                label: AppStrings.adminTasksCompletedLabel,
-              ),
-            ),
-            const SizedBox(width: AppSizes.sm),
-            Expanded(
-              child: AdminStatBox(
-                value: '${stats.completionRatePercent}%',
-                label: AppStrings.adminCompletionRateLabel,
-                highlight: true,
-              ),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final columns = width >= 720
+                ? 3
+                : width >= 480
+                    ? 2
+                    : 1;
+            final spacing = AppSizes.sm;
+            final itemWidth = columns == 1
+                ? width
+                : (width - (spacing * (columns - 1))) / columns;
+
+            return Wrap(
+              spacing: spacing,
+              runSpacing: AppSizes.sm,
+              children: [
+                SizedBox(
+                  width: itemWidth,
+                  child: AdminStatBox(
+                    value: '${stats.created}',
+                    label: AppStrings.adminTasksCreatedLabel,
+                  ),
+                ),
+                SizedBox(
+                  width: itemWidth,
+                  child: AdminStatBox(
+                    value: '${stats.completed}',
+                    label: AppStrings.adminTasksCompletedLabel,
+                  ),
+                ),
+                SizedBox(
+                  width: itemWidth,
+                  child: AdminStatBox(
+                    value: '${stats.completionRatePercent}%',
+                    label: AppStrings.adminCompletionRateLabel,
+                    highlight: true,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         const SizedBox(height: AppSizes.xl),
         Text(AppStrings.adminRecentActivity, style: AppTextStyles.sectionTitle),
@@ -219,12 +259,10 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             borderRadius: BorderRadius.circular(AppSizes.radiusLg),
             border: Border.all(color: AppColors.border),
           ),
-          child: _tasks.isEmpty
-              ? Text('Nenhuma tarefa registrada.',
-                  style: AppTextStyles.adminUserMeta)
-              : Column(
-                  children: _tasks.take(10).map((t) => AdminActivityRow(t)).toList(),
-                ),
+          child: Text(
+            'As métricas abaixo resumem o progresso do usuário sem expor detalhes das atividades.',
+            style: AppTextStyles.adminUserMeta,
+          ),
         ),
         const SizedBox(height: AppSizes.xxl),
         if (!user.isAdmin) ...[
@@ -248,7 +286,8 @@ class AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
           width: double.infinity,
           child: TextButton.icon(
             onPressed: user.isAdmin ? null : _confirmBan,
-            icon: const Icon(Icons.block, color: AppColors.dangerDark, size: 18),
+            icon:
+                const Icon(Icons.block, color: AppColors.dangerDark, size: 18),
             label: Text(AppStrings.adminBanThisUser,
                 style: AppTextStyles.adminDangerButton.copyWith(fontSize: 15)),
             style: TextButton.styleFrom(
