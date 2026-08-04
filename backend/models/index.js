@@ -3,7 +3,15 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
+const cors = require('cors');
+const express = require('express');
 const process = require('process');
+
+const app = express(); // <-- FALTAVA ISSO AQUI!
+
+app.use(express.json());
+app.use(cors());
+
 
 const basename =
   path.basename(__filename);
@@ -70,5 +78,8 @@ Object.keys(db).forEach(
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
 module.exports = db;
