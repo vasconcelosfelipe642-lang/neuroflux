@@ -11,7 +11,7 @@ class ApiClient {
   ApiClient._();
   static final instance = ApiClient._();
 
-static String get _baseUrl {
+  static String get _baseUrl {
     const configuredUrl = String.fromEnvironment('API_BASE_URL');
     if (configuredUrl.isNotEmpty) {
       return configuredUrl.endsWith('/')
@@ -30,7 +30,7 @@ static String get _baseUrl {
     // Fallback: servidor de produção na nuvem
     return 'http://18.219.227.74:3000';
   }
-  
+
   String? _token;
   Future<bool>? _refreshFuture;
 
@@ -123,8 +123,7 @@ static String get _baseUrl {
     return _handleList(res);
   }
 
-  Future<Map<String, dynamic>> post(
-      String path, Map<String, dynamic> body,
+  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body,
       {bool retryOnUnauthorized = true}) async {
     Future<http.Response> request() {
       return http.post(
@@ -140,8 +139,11 @@ static String get _baseUrl {
     return _handleMap(res);
   }
 
-  Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body,
-      {bool retryOnUnauthorized = true}) async {
+  Future<Map<String, dynamic>> put(
+    String path,
+    Map<String, dynamic> body, {
+    bool retryOnUnauthorized = true,
+  }) async {
     Future<http.Response> request() {
       return http.put(
         _uri(path),

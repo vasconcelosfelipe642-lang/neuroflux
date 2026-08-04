@@ -16,7 +16,9 @@ class NewTaskModalState extends State<NewTaskModal> {
   final _taskFocus = FocusNode();
 
   final _subtaskTitles = <String>[];
+
   bool _isSaving = false;
+  bool _isDaily = false;
 
   @override
   void dispose() {
@@ -48,6 +50,7 @@ class NewTaskModalState extends State<NewTaskModal> {
       await widget.onAddTask(
         title: title,
         description: null,
+        isDaily: _isDaily,
         subtaskTitles: List.from(_subtaskTitles),
       );
       if (mounted) Navigator.of(context).pop();
@@ -71,7 +74,10 @@ class NewTaskModalState extends State<NewTaskModal> {
         ),
       ),
       padding: EdgeInsets.fromLTRB(
-        AppSizes.xl, AppSizes.xl, AppSizes.xl, AppSizes.xl + bottomInset,
+        AppSizes.xl,
+        AppSizes.xl,
+        AppSizes.xl,
+        AppSizes.xl + bottomInset,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -83,6 +89,23 @@ class NewTaskModalState extends State<NewTaskModal> {
             controller: _taskController,
             focusNode: _taskFocus,
             onChanged: (_) => setState(() {}),
+          ),
+
+          const SizedBox(height: AppSizes.lg),
+
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text("Tarefa diária"),
+            subtitle: const Text(
+              "Aparecerá na lista de tarefas diárias.",
+            ),
+            value: _isDaily,
+            activeThumbColor: AppColors.primary,
+            onChanged: (value) {
+              setState(() {
+                _isDaily = value;
+              });
+            },
           ),
           const SizedBox(height: AppSizes.lg),
           NewSubtaskField(

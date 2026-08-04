@@ -8,6 +8,7 @@ import 'new_task_modal_state.dart';
 typedef OnAddTask = Future<void> Function({
   required String title,
   String? description,
+  required bool isDaily,
   required List<String> subtaskTitles,
 });
 

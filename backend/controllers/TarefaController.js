@@ -14,8 +14,7 @@ module.exports = {
       }
 
       console.log(req.body);
-      const { titulo, descricao } = req.body;
-
+      
       const { titulo, descricao, is_diaria } = req.body;
       const usuarioId = req.user.id;
 

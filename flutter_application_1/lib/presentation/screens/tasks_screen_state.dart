@@ -59,9 +59,12 @@ class TasksScreenState extends State<TasksScreen> {
   }
 
   int get _completedCount => _tasks.where((t) => t.isCompleted).length;
+  List<TaskModel> get _normalTasks => _tasks.where((t) => !t.isDaily).toList();
+
+  List<TaskModel> get _dailyTasks => _tasks.where((t) => t.isDaily).toList();
 
   List<TaskModel> get _pendingTasks =>
-      _tasks.where((t) => !t.isCompleted).toList();
+      _normalTasks.where((t) => !t.isCompleted).toList();
 
   Future<void> _loadTasks() async {
     if (!mounted) return;
@@ -81,12 +84,14 @@ class TasksScreenState extends State<TasksScreen> {
   Future<void> _onAddTask({
     required String title,
     String? description,
+    required bool isDaily,
     required List<String> subtaskTitles,
   }) async {
     try {
       final novaTarefa = await _tarefaService.criar(
         titulo: title,
         descricao: description,
+        isDaily: isDaily,
       );
 
       final subtasks = await Future.wait(
@@ -338,11 +343,13 @@ class TasksScreenState extends State<TasksScreen> {
       onAddTask: ({
         required String title,
         String? description,
+        required bool isDaily,
         required List<String> subtaskTitles,
       }) =>
           _onAddTask(
         title: title,
         description: description,
+        isDaily: isDaily,
         subtaskTitles: subtaskTitles,
       ),
     );
@@ -421,14 +428,17 @@ class TasksScreenState extends State<TasksScreen> {
                                       totalTasks: _tasks.length,
                                     ),
                                     const SizedBox(height: AppSizes.lg),
-                                    Text(AppStrings.today,
-                                        style: AppTextStyles.sectionTitle),
+                                    Text(
+                                      "Tarefas",
+                                      style: AppTextStyles.sectionTitle,
+                                    ),
                                     const SizedBox(height: AppSizes.md),
-                                    _tasks.isEmpty
+                                    _normalTasks.isEmpty
                                         ? TaskListEmpty(
-                                            onCreateTask: _openNewTaskModal)
+                                            onCreateTask: _openNewTaskModal,
+                                          )
                                         : TaskList(
-                                            tasks: _tasks,
+                                            tasks: _normalTasks,
                                             onToggle: _toggleTask,
                                             onToggleSubtask: _toggleSubtask,
                                             onEdit: _editTaskTitle,
@@ -437,7 +447,30 @@ class TasksScreenState extends State<TasksScreen> {
                                             onDelete: _deleteTask,
                                           ),
                                     const SizedBox(height: AppSizes.xl),
-                                    NewTaskButton(onPressed: _openNewTaskModal),
+                                    Text(
+                                      "Tarefas Diárias",
+                                      style: AppTextStyles.sectionTitle,
+                                    ),
+                                    const SizedBox(height: AppSizes.md),
+                                    _dailyTasks.isEmpty
+                                        ? const Text(
+                                            "Nenhuma tarefa diária.",
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          )
+                                        : TaskList(
+                                            tasks: _dailyTasks,
+                                            onToggle: _toggleTask,
+                                            onToggleSubtask: _toggleSubtask,
+                                            onEdit: _editTaskTitle,
+                                            onEditSubtask: _editSubtask,
+                                            onAddSubtask: _addSubtaskToExisting,
+                                            onDelete: _deleteTask,
+                                          ),
+                                    const SizedBox(height: AppSizes.xl),
+                                    NewTaskButton(
+                                      onPressed: _openNewTaskModal,
+                                    ),
                                   ],
                                 ),
                               ),

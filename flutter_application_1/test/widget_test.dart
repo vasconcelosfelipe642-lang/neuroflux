@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/core/theme/theme_scope.dart';
 import 'package:flutter_application_1/presentation/screens/login_screen.dart';
 import 'package:flutter_application_1/presentation/screens/admin/admin_stat_box.dart';
+import 'package:flutter_application_1/main.dart';
 
 void main() {
   testWidgets('a tela de login exibe a opção de recuperação de senha',
@@ -13,10 +14,10 @@ void main() {
           home: LoginScreen(
             onLogin: (_) async {},
             onNavigateToRegister: () {},
-          ),
-        ),
-      ),
-    );
+          ), 
+        ), 
+      ), 
+    ); // pumpWidget
     await tester.pump();
 
     expect(find.text('Esqueceu sua senha ?'), findsOneWidget);
@@ -25,6 +26,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Recuperar senha'), findsOneWidget);
+  });
+
+  testWidgets('o app inicializa e exibe o NeuroFluxApp após o splash',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ThemeScope(
+        child: const NeuroFluxApp(),
+      ),
+    );
+    await tester.pump();
+    expect(find.byType(NeuroFluxApp), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('AdminStatBox keeps the percentage visible',
